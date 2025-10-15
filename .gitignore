@@ -1,5 +1,5 @@
 # Generated on 2025-10-15
-# Includes: python, next_js, typescript, macos
+# Includes: python, next_js, typescript, macos, webstorm, pycharm
 
 ### Universal ###
 # Common files that should be ignored in all projects
@@ -209,3 +209,51 @@ Network Trash Folder/
 .DS_Store?
 .Spotlight-V100
 .Trashes
+
+### Webstorm ###
+# WebStorm IDE specific files and settings
+
+# WebStorm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+.idea_modules/
+out/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+
+.idea/jsLibraryMappings.xml
+.idea/watcherTasks.xml
+.idea/jsLinters/
+.idea/inspectionProfiles/
+.idea/codeStyles/
+
+### Pycharm ###
+# pycharm editor specific files
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+.idea_modules/
+out/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+.idea/datasources.xml
+
+.idea/dataSources.ids
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/inspectionProfiles/
