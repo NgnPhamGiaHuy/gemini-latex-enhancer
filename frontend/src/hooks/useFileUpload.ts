@@ -1,0 +1,63 @@
+import { toast } from "sonner";
+import { useCallback } from "react";
+
+import type { UseFileUploadProps } from "@/types";
+
+import { uploadTex } from "@/lib/api";
+
+const useFileUpload = ({ onUploadSuccess, onLoadingChange, selectedModel }: UseFileUploadProps) => {
+    const handleFileUpload = useCallback(
+        async (acceptedFiles: File[]) => {
+            if (!acceptedFiles.length) return;
+
+            // Start loading with progress tracking
+            onLoadingChange(true, 10, "Uploading CV file...");
+
+            try {
+                console.log("=== FRONTEND UPLOAD HANDLER STARTED ===");
+
+                // Simulate progress stages
+                onLoadingChange(true, 30, "Processing LaTeX content...");
+
+                const res = await uploadTex(acceptedFiles[0], selectedModel);
+                console.log("Upload response received:", res);
+
+                onLoadingChange(true, 60, "Generating AI analysis...");
+
+                // Store the original LaTeX content for enhancement
+                const fileContent = await acceptedFiles[0].text();
+
+                onLoadingChange(true, 90, "Finalizing analysis...");
+
+                console.log("State updated:", {
+                    sessionId: res.session_id,
+                    summaryLength: res.summary?.length || 0,
+                    sectionsCount: res.sections?.length || 0,
+                    latexContentLength: fileContent.length,
+                });
+
+                onUploadSuccess({
+                    sessionId: res.session_id,
+                    summary: res.summary,
+                    sections: res.sections,
+                    latexContent: fileContent,
+                });
+
+                onLoadingChange(false, 100, "Upload completed!");
+                toast.success("CV uploaded and analyzed successfully!");
+                console.log("=== FRONTEND UPLOAD HANDLER COMPLETED ===");
+            } catch (error) {
+                console.error("Upload failed:", error);
+                onLoadingChange(false, 0, "Upload failed");
+                toast.error("Failed to upload CV. Please try again.");
+            }
+        },
+        [onUploadSuccess, onLoadingChange, selectedModel]
+    );
+
+    return {
+        handleFileUpload,
+    };
+};
+
+export default useFileUpload;
