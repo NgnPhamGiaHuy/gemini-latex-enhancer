@@ -44,7 +44,7 @@ const STEPS = [
 
 const CVEnhancer = () => {
     const isClient = useClientSide();
-    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetState } = useCVEnhancer();
+    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetForNewJob, resetState } = useCVEnhancer();
 
     if (!isClient) {
         return (
@@ -109,7 +109,7 @@ const CVEnhancer = () => {
                     originalLatexContent={originalLatexContent}
                 />
 
-                <DownloadStep step={step} generateResult={generateResult} onStartOver={resetState} />
+                <DownloadStep step={step} generateResult={generateResult} onStartOver={resetState} onStartAgain={resetForNewJob} />
 
                 {/* Full Screen Progress Overlay */}
                 <FullScreenProgress loading={loading} progress={progress} message={progressMessage} title={getProgressTitle(progressMessage)} subtitle={getProgressSubtitle(progressMessage)} />

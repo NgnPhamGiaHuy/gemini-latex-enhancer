@@ -26,6 +26,7 @@ CRITICAL RULES:
 - Preserve all formatting and structure
 - Enhance content to match job requirements while maintaining authenticity
 - Keep the same LaTeX document structure and packages
+- **CRITICAL: DO NOT remove any \\vspace{{}} commands from the original CV**
 
 PAGE LENGTH CONSTRAINT - CRITICAL:
 The CV MUST fit on ONE PAGE. To ensure this, strictly limit content per section:
@@ -49,12 +50,14 @@ The CV MUST fit on ONE PAGE. To ensure this, strictly limit content per section:
 6. If content exceeds limits, prioritize the most impactful information
 7. Use concise, powerful language - every word must add value
 
-**Spacing & Formatting Rules:**
-- PRESERVE essential vertical spacing between sections (e.g., \\vspace{{0.5em}} between projects)
+**Spacing & Formatting Rules - CRITICAL:**
+- PRESERVE ALL \\vspace{{}} commands exactly as they appear in the original CV
+- DO NOT remove \\vspace{{0.5em}} or any other spacing commands
 - Maintain proper spacing between items within sections
 - Keep consistent formatting and structure
 - Only remove excessive spacing, not necessary spacing for readability
 - Ensure sections are visually separated and easy to read
+- Spacing commands like \\vspace{{0.5em}} are ESSENTIAL for proper document layout
 
 **Quality Guidelines:**
 - Maintain professional tone and authenticity
@@ -84,6 +87,7 @@ CRITICAL RULES:
 - Preserve all formatting and structure
 - Enhance content to match job requirements while maintaining authenticity
 - Keep the same LaTeX document structure and packages
+- **CRITICAL: DO NOT remove any \\vspace{{}} commands from the original CV**
 
 ONE-PAGE CONSTRAINT - ABSOLUTE PRIORITY:
 The enhanced CV MUST fit on exactly ONE PAGE. This is non-negotiable.
@@ -114,12 +118,14 @@ First, analyze the CV structure and allocate word budget accordingly:
 - Consolidate similar experiences
 - Use industry terminology from job posting
 
-**Spacing & Formatting Rules:**
-- PRESERVE essential vertical spacing between sections (e.g., \\vspace{{0.5em}} between projects)
+**Spacing & Formatting Rules - CRITICAL:**
+- PRESERVE ALL \\vspace{{}} commands exactly as they appear in the original CV
+- DO NOT remove \\vspace{{0.5em}} or any other spacing commands
 - Maintain proper spacing between items within sections
 - Keep consistent formatting and structure
 - Only remove excessive spacing, not necessary spacing for readability
 - Ensure sections are visually separated and easy to read
+- Spacing commands like \\vspace{{0.5em}} are ESSENTIAL for proper document layout
 
 **Quality Assurance:**
 - Every word must add value to job application
@@ -152,6 +158,7 @@ CRITICAL RULES:
 - Preserve all formatting and structure
 - Enhance content to match job requirements while maintaining authenticity
 - Keep the same LaTeX document structure and packages
+- **CRITICAL: DO NOT remove any \\vspace{{}} commands from the original CV**
 
 ONE-PAGE CONSTRAINT - ABSOLUTE PRIORITY:
 The enhanced CV MUST fit on exactly ONE PAGE. This is non-negotiable.
@@ -208,12 +215,14 @@ First, analyze the CV structure and allocate word budget accordingly:
 - Consolidate similar experiences
 - Use industry terminology from job posting
 
-**Spacing & Formatting Rules:**
-- PRESERVE essential vertical spacing between sections (e.g., \\vspace{{0.5em}} between projects)
+**Spacing & Formatting Rules - CRITICAL:**
+- PRESERVE ALL \\vspace{{}} commands exactly as they appear in the original CV
+- DO NOT remove \\vspace{{0.5em}} or any other spacing commands
 - Maintain proper spacing between items within sections
 - Keep consistent formatting and structure
 - Only remove excessive spacing, not necessary spacing for readability
 - Ensure sections are visually separated and easy to read
+- Spacing commands like \\vspace{{0.5em}} are ESSENTIAL for proper document layout
 
 **Quality Assurance:**
 - Every word must add value to job application

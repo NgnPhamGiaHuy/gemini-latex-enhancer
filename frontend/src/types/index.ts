@@ -41,6 +41,7 @@ export interface CVEnhancerActions {
     setProgress: (progress: number) => void;
     setProgressMessage: (message: string) => void;
     handleLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    resetForNewJob: () => void;
     resetState: () => void;
 }
 
@@ -198,6 +199,7 @@ export interface DownloadStepProps {
         pdf?: string | null;
     };
     onStartOver: () => void;
+    onStartAgain?: () => void;
 }
 
 export interface UploadStepProps {

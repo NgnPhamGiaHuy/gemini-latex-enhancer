@@ -172,6 +172,11 @@ class AIService:
             # Clean the response to remove markdown formatting
             enhanced_latex = self._clean_latex_response(enhanced_latex)
 
+            # Restore missing vspace commands from original
+            enhanced_latex = self._restore_vspace_commands(
+                enhanced_latex, latex_content
+            )
+
             logger.info("CV enhancement completed successfully")
             return enhanced_latex
 
@@ -230,3 +235,85 @@ class AIService:
         logger.debug(f"Cleaned LaTeX preview: {cleaned[:200]}...")
 
         return cleaned
+
+    def _restore_vspace_commands(self, enhanced_latex: str, original_latex: str) -> str:
+        """Restore missing \\vspace commands from the original LaTeX.
+
+        This method ensures that essential spacing commands are preserved even if
+        the AI model removes them during enhancement.
+
+        Args:
+            enhanced_latex: The AI-enhanced LaTeX content
+            original_latex: The original LaTeX content
+
+        Returns:
+            Enhanced LaTeX with restored \\vspace commands
+        """
+        import re
+
+        logger.info("=== RESTORING VSPACE COMMANDS ===")
+
+        # Find all \\vspace commands in the original
+        vspace_pattern = r"\\vspace\{[^}]+\}"
+        original_vspaces = re.findall(vspace_pattern, original_latex)
+
+        if not original_vspaces:
+            logger.info("No \\vspace commands found in original LaTeX")
+            return enhanced_latex
+
+        logger.info(f"Found {len(original_vspaces)} \\vspace commands in original")
+
+        # Check if any \\vspace commands are missing in enhanced version
+        enhanced_vspaces = re.findall(vspace_pattern, enhanced_latex)
+        missing_vspaces = [
+            vspace for vspace in original_vspaces if vspace not in enhanced_vspaces
+        ]
+
+        if not missing_vspaces:
+            logger.info("All \\vspace commands preserved in enhanced version")
+            return enhanced_latex
+
+        logger.warning(
+            f"Found {len(missing_vspaces)} missing \\vspace commands, attempting to restore"
+        )
+
+        # Try to restore missing \\vspace commands by finding similar contexts
+        restored_latex = enhanced_latex
+
+        for missing_vspace in missing_vspaces:
+            # Find the context around this vspace in the original
+            vspace_index = original_latex.find(missing_vspace)
+            if vspace_index == -1:
+                continue
+
+            # Get some context before and after the vspace
+            context_start = max(0, vspace_index - 100)
+            context_end = min(
+                len(original_latex), vspace_index + len(missing_vspace) + 100
+            )
+            context = original_latex[context_start:context_end]
+
+            # Look for similar context in enhanced version
+            # This is a simple approach - we could make it more sophisticated
+            if "\\end{itemize}" in context and missing_vspace in context:
+                # This vspace likely comes after an itemize block
+                # Try to find similar itemize blocks in enhanced version
+                itemize_pattern = r"\\end\{itemize\}"
+                enhanced_matches = list(re.finditer(itemize_pattern, restored_latex))
+
+                for match in enhanced_matches:
+                    # Check if there's already a vspace after this itemize
+                    after_itemize = restored_latex[match.end() : match.end() + 20]
+                    if not re.search(vspace_pattern, after_itemize):
+                        # Insert the missing vspace
+                        insert_pos = match.end()
+                        restored_latex = (
+                            restored_latex[:insert_pos]
+                            + missing_vspace
+                            + restored_latex[insert_pos:]
+                        )
+                        logger.info(f"Restored {missing_vspace} after itemize block")
+                        break
+
+        logger.info("=== VSPACE RESTORATION COMPLETED ===")
+        return restored_latex

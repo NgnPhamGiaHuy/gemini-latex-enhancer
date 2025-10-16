@@ -9,7 +9,7 @@ import DownloadLinks from "./download-links";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const DownloadStep = ({ step, generateResult, onStartOver }: DownloadStepProps) => {
+const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain }: DownloadStepProps) => {
     if (step !== "download") return null;
 
     return (
@@ -25,7 +25,10 @@ const DownloadStep = ({ step, generateResult, onStartOver }: DownloadStepProps) 
                 <CardContent className="space-y-4">
                     <DownloadLinks generateResult={generateResult} />
 
-                    <div className="pt-4 border-t">
+                    <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <Button variant="secondary" onClick={onStartAgain} className="w-full">
+                            Start Again (reuse CV)
+                        </Button>
                         <Button variant="outline" onClick={onStartOver} className="w-full">
                             Start Over
                         </Button>

@@ -17,15 +17,7 @@ const AlignStep = ({ step, summary, jobTitle, setJobTitle, jobDescription, setJo
     const handleEnhance = () => {
         if (!sessionId) return;
 
-        handleEnhancement({
-            sessionId,
-            jobTitle,
-            jobDescription,
-            companyName,
-            originalLatexContent,
-            modelId: selectedModel,
-            sliceProjects,
-        });
+        handleEnhancement({ sessionId, jobTitle, jobDescription, companyName, originalLatexContent, modelId: selectedModel, sliceProjects });
     };
 
     if (step !== "align") return null;

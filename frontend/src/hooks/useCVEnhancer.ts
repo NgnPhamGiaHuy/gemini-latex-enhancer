@@ -33,6 +33,19 @@ const useCVEnhancer = (): CVEnhancerState & CVEnhancerActions => {
         setProgressMessage(message);
     };
 
+    const resetForNewJob = () => {
+        // Keep uploaded CV and AI summary/sections, clear only job-specific inputs and results
+        setJobTitle("");
+        setJobDescription("");
+        setCompanyName("");
+        setSliceProjects(true);
+        setGenerateResult({});
+        setLoading(false);
+        setProgress(0);
+        setProgressMessage("");
+        setStep("align");
+    };
+
     const resetState = () => {
         setStep("upload");
         setSessionId(null);
@@ -42,7 +55,7 @@ const useCVEnhancer = (): CVEnhancerState & CVEnhancerActions => {
         setJobTitle("");
         setJobDescription("");
         setCompanyName("");
-        setSliceProjects(false);
+        setSliceProjects(true);
         setSelectedModel("gemini-2.5-flash");
         setGenerateResult({});
         setLoading(false);
@@ -83,6 +96,7 @@ const useCVEnhancer = (): CVEnhancerState & CVEnhancerActions => {
         setProgress,
         setProgressMessage,
         handleLoadingChange,
+        resetForNewJob,
         resetState,
     };
 };
