@@ -89,8 +89,12 @@ app.include_router(download.router, prefix="/api", tags=["download"])
 app.include_router(models.router, prefix="/api", tags=["models"])
 
 # Mount static files for outputs
-# Note: Directory creation is now handled by startup event
-app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
+# Note: Directory creation is handled by startup event; avoid requiring it at import time
+app.mount(
+    "/outputs",
+    StaticFiles(directory=settings.OUTPUT_DIR, check_dir=False),
+    name="outputs",
+)
 
 
 @app.get("/")

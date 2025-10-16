@@ -9,7 +9,7 @@ import DownloadStep from "./download-step";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { FullScreenProgress } from "@/components/ui/fullscreen-progress";
 
-import { useCVEnhancer, useClientSide } from "@/hooks";
+import { useCVEnhancer, useClientSide, useCVEnhancement } from "@/hooks";
 import type { Step } from "@/types";
 
 function getProgressTitle(message: string): string {
@@ -44,7 +44,16 @@ const STEPS = [
 
 const CVEnhancer = () => {
     const isClient = useClientSide();
-    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetForNewJob, resetState } = useCVEnhancer();
+    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetState } = useCVEnhancer();
+
+    // Create a regenerate handler that reuses current inputs
+    const { handleEnhancement: regenerateEnhancement } = useCVEnhancement({
+        onEnhanceSuccess: (result) => {
+            setGenerateResult(result);
+            setStep("download");
+        },
+        onLoadingChange: handleLoadingChange,
+    });
 
     if (!isClient) {
         return (
@@ -109,7 +118,23 @@ const CVEnhancer = () => {
                     originalLatexContent={originalLatexContent}
                 />
 
-                <DownloadStep step={step} generateResult={generateResult} onStartOver={resetState} onStartAgain={resetForNewJob} />
+                <DownloadStep
+                    step={step}
+                    generateResult={generateResult}
+                    onStartOver={resetState}
+                    onStartAgain={async () => {
+                        if (!sessionId) return;
+                        await regenerateEnhancement({
+                            sessionId,
+                            jobTitle,
+                            jobDescription,
+                            companyName,
+                            originalLatexContent,
+                            modelId: selectedModel,
+                            sliceProjects,
+                        });
+                    }}
+                />
 
                 {/* Full Screen Progress Overlay */}
                 <FullScreenProgress loading={loading} progress={progress} message={progressMessage} title={getProgressTitle(progressMessage)} subtitle={getProgressSubtitle(progressMessage)} />

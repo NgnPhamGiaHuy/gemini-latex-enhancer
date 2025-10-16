@@ -67,6 +67,13 @@ The CV MUST fit on ONE PAGE. To ensure this, strictly limit content per section:
 - Remove filler words and unnecessary details
 - Preserve document readability and visual hierarchy
 
+**Experience Duration Integrity - CRITICAL:**
+- NEVER fabricate or exaggerate total experience duration.
+- If the PROFESSIONAL SUMMARY mentions an experience duration (e.g., "X months"), it MUST be derived directly from explicit date ranges in the EXPERIENCE section.
+- Compute duration only when start and end dates are clearly present; otherwise, OMIT duration in the summary.
+- If dates are missing or ambiguous, use neutral phrasing like "with hands-on internship experience" or "with practical experience" without quantifying months/years.
+- Do not alter or inflate durations stated elsewhere in the CV.
+
 LaTeX CV to enhance:
 {latex_content}
 """
@@ -135,6 +142,12 @@ First, analyze the CV structure and allocate word budget accordingly:
 - Check for typos and grammar
 - Preserve document readability and visual hierarchy
 
+**Experience Duration Integrity - CRITICAL:**
+- The PROFESSIONAL SUMMARY must not overstate experience.
+- Only include total duration if it can be accurately derived from explicit date ranges in the EXPERIENCE section (sum overlapping or contiguous periods appropriately).
+- If any required dates are missing or unclear, OMIT numeric duration and use neutral phrasing (e.g., "with hands-on internship experience").
+- Never invent or round up durations beyond what dates imply.
+
 **Final Check:**
 Before outputting, mentally verify the CV would fit on one page when printed while maintaining proper spacing and readability.
 
@@ -152,13 +165,18 @@ Enhance this LaTeX CV to align with the following job context:
 
 CRITICAL RULES:
 - Output ONLY pure LaTeX code - NO markdown formatting
+- Output must start with \\documentclass and end with \\end{{document}}
 - Do NOT wrap output in ```latex``` code blocks
 - Do NOT include explanations, comments, or metadata
-- Output must start with \\documentclass and end with \\end{{document}}
-- Preserve all formatting and structure
-- Enhance content to match job requirements while maintaining authenticity
+- Preserve all LaTeX formatting, structure, and \\vspace{{}} commands exactly.
 - Keep the same LaTeX document structure and packages
-- **CRITICAL: DO NOT remove any \\vspace{{}} commands from the original CV**
+- Enhance content to match job requirements while maintaining authenticity
+- **NEVER fabricate, exaggerate, or alter factual details**, including:
+  - Employment duration, company names, or job titles.
+  - Dates of education, internship, or work experience.
+  - Personal information such as GPA, awards, or certifications not present in the source.
+- When clarifying ambiguous phrasing, stay conservative and truthful (e.g., keep "3 months" if stated, not "6 months").
+- If a requested detail (e.g., GPA or start date) is missing from the CV, simply omit it rather than inventing or estimating values.
 
 ONE-PAGE CONSTRAINT - ABSOLUTE PRIORITY:
 The enhanced CV MUST fit on exactly ONE PAGE. This is non-negotiable.
@@ -231,6 +249,13 @@ First, analyze the CV structure and allocate word budget accordingly:
 - Use consistent formatting
 - Check for typos and grammar
 - Preserve document readability and visual hierarchy
+- All enhancements must preserve factual integrity — never invent missing information (such as GPA or employment details) under any circumstance.
+
+**Experience Duration Integrity - CRITICAL:**
+- Do not fabricate or exaggerate total experience duration.
+- If the summary references experience duration, calculate it strictly from explicit date ranges in the EXPERIENCE section.
+- If dates are missing/uncertain, omit the duration and use neutral phrasing (e.g., "with practical internship experience").
+- Keep durations consistent across summary and experience details; never alter stated dates or lengths.
 
 **Final Check:**
 Before outputting, mentally verify the CV would fit on one page when printed while maintaining proper spacing and readability.

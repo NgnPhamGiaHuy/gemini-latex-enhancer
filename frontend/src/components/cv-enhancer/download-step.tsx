@@ -26,10 +26,10 @@ const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain }: Downl
                     <DownloadLinks generateResult={generateResult} />
 
                     <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <Button variant="secondary" onClick={onStartAgain} className="w-full">
-                            Start Again (reuse CV)
+                        <Button variant="secondary" onClick={onStartAgain} className="w-full transition-colors duration-200">
+                            Regenerate
                         </Button>
-                        <Button variant="outline" onClick={onStartOver} className="w-full">
+                        <Button variant="outline" onClick={onStartOver} className="w-full transition-colors duration-200">
                             Start Over
                         </Button>
                     </div>

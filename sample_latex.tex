@@ -1,0 +1,145 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CV of Nguyễn Phạm Gia Huy
+% Revised with all vertical space removed.
+% To be compiled with XeLaTeX.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,11pt]{article}
+
+%---------- Packages ----------
+\usepackage[a4paper,margin=0.5in]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+%---------- Global Line Height ----------
+\linespread{1.0}
+
+%---------- Font ----------
+\setmainfont{Calibri}
+
+%---------- Colors & Hyperlinks ----------
+\definecolor{darkgray}{gray}{0.25}
+\definecolor{linkcolor}{HTML}{000000}
+
+\hypersetup{
+    colorlinks=true,
+    urlcolor=linkcolor,
+    linkcolor=linkcolor,
+    pdftitle={CV - Nguyễn Phạm Gia Huy},
+    pdfauthor={Nguyễn Phạm Gia Huy},
+}
+
+%---------- Layout & Spacing (MODIFIED FOR NO VERTICAL SPACE) ----------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt} % Removes space between paragraphs
+\raggedbottom % Prevents vertical stretching of content on the page
+
+%---------- Section Formatting ----------
+\titleformat{\section}
+  {\Large\bfseries\color{darkgray}\centering}
+  {}
+  {0em}
+  {\MakeUppercase}
+  []
+
+\titlespacing*{\section}
+  {0pt}
+  {0pt}
+  {0pt}
+
+% --- REMOVE PAGE NUMBERS ---
+\pagestyle{empty}
+
+%---------- Document ----------
+\begin{document}
+
+%---------- Header ----------
+{\centering
+    {\Huge \bfseries Nguyễn Phạm Gia Huy} \\
+    \vspace{4pt}
+    \normalsize\href{mailto:yuh.nguyenpham@gmail.com}{yuh.nguyenpham@gmail.com} •
+    \normalsize\href{https://linkedin.com/in/nguyenphamgiahuy}{linkedin.com/in/nguyenphamgiahuy} •
+    \normalsize\href{https://github.com/NgnPhamGiaHuy}{github.com/NgnPhamGiaHuy} •
+    \normalsize0969 122 412
+}
+\vspace{4pt}
+%---------- Professional Summary ----------
+\section*{Professional Summary}
+A proactive and enthusiastic Information Technology graduate with a solid foundation in Object-Oriented Programming (OOP), database principles, and full-stack web development. Eager to apply strong logical thinking and problem-solving skills gained from hands-on project experience with JavaScript, Python, and RESTful APIs to contribute to a dynamic software engineering team. A fast learner dedicated to continuous professional growth and mastering new technologies.
+
+%---------- Education ----------
+\section*{Education}
+\textbf{International University} \hfill Ho Chi Minh City, Vietnam \\
+\textit{Engineer in Information Technology} \hfill 2019 – 2024
+
+%---------- Experience ----------
+\section*{Experience}
+\textbf{CÔNG TY TNHH CÔNG NGHỆ TRUYỀN THÔNG CÁNH CAM} \hfill Ho Chi Minh City, Vietnam \\
+\textit{Front-end Developer Intern} \hfill Aug 2024 – Nov 2024
+\begin{itemize}[leftmargin=*, noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Collaborated within an Agile team to develop and deploy responsive web applications, working closely with designers and backend developers to streamline workflows.
+    \item Integrated RESTful APIs using JavaScript to enable dynamic content rendering and ensure smooth client-side data interactions.
+    \item Converted Figma prototypes into responsive, cross-browser interfaces using HTML, CSS, and JavaScript, demonstrating strong UI/UX awareness.
+    \item Customized and optimized WordPress themes to align with client requirements, improving usability and maintaining brand consistency.
+\end{itemize}
+
+%---------- Projects ----------
+\section*{Personal Projects}
+\textbf{\href{https://github.com/NgnPhamGiaHuy/recial-social-media-platform}{Recial – A modern social media platform}}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Engineered a comprehensive, full-stack social media application featuring real-time communication, content sharing, and community management functionalities, designed for scalability and a seamless user experience.
+    \item Developed a secure and scalable backend using Node.js and Express.js, designing RESTful APIs and MongoDB schemas to manage users, posts, groups, and media content efficiently.
+    \item Implemented a robust authentication system supporting both JWT-based credentials and Google OAuth, ensuring secure access control across the platform.
+    \item Built a dynamic, responsive frontend with Next.js and React, utilizing Redux for centralized state management to create a seamless and interactive user interface.
+    \item Integrated WebSockets to power a real-time messaging and notification system, enabling instant communication and user engagement.
+    \item Leveraged Firebase Storage for scalable and efficient handling of user-generated media uploads, including images and videos.
+\end{itemize}
+\textbf{\href{https://github.com/NgnPhamGiaHuy/media-crawler}{Media Crawler – Fast, safe, and sessionized website media extractor}}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Designed and developed a high-performance web application to crawl websites and intelligently extract, process, and cache media content (images, videos, audio) through a user-friendly interface.
+    \item Engineered an asynchronous crawling engine using Python and aiohttp within a Flask framework, processing multiple pages concurrently to reduce media extraction times by up to 75\%.
+    \item Implemented a sophisticated parsing module with Beautiful Soup to analyze HTML, CSS, and JSON, increasing media discovery rates by up to 40\% compared to standard extraction methods.
+    \item Developed an intelligent media processing pipeline that automatically generates rich previews, such as video frames and audio waveforms, to enhance the user's browsing experience.
+    \item Architected a robust, session-based caching system to optimize server performance and disk usage, featuring automated cleanup of expired assets and ensuring data isolation in a multi-user environment.
+\end{itemize}
+\textbf{\href{https://github.com/NgnPhamGiaHuy/google-cse-serp-extractor}{Google CSE SERP Extractor – Bulk Google results to clean files}}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Developed a production-grade data extraction tool that leverages Google's Custom Search Engine API to provide reliable, scalable SERP data for SEO and market research, bypassing common web scraping limitations.
+    \item Engineered a high-throughput extraction engine to process thousands of keywords via Google's CSE API, implementing intelligent rate limiting, caching, and automated retries to ensure data integrity and maximize efficiency.
+    \item Developed a dual-interface system with a FastAPI web application for interactive use and a CLI for automation, ensuring flexible workflows with multi-format data support (CSV, Excel, JSON).
+    \item Implemented advanced query targeting to filter results from over 50 platforms (e.g., LinkedIn, GitHub), enabling precise data collection for competitive analysis and profile sourcing.
+    \item Architected a production-ready system with robust error handling, centralized logging, and an automated API token manager that utilizes backup keys to manage quotas and guarantee uninterrupted operation.
+\end{itemize}
+\textbf{\href{https://github.com/NgnPhamGiaHuy/mock-interview-platform}{MockInter – AI Powered Mock Interview Platform}}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Developed an AI-driven web application that simulates realistic job interviews, allowing users to practice through voice conversations and receive instant, data-driven performance feedback.
+    \item Engineered a real-time, conversational AI interviewer by integrating Google's Generative AI for question logic and Vapi.ai for seamless voice interaction, creating an immersive practice experience.
+    \item Implemented a secure authentication and user data management system using Firebase Auth and Firestore to track interview history, store performance metrics, and visualize user progress over time.
+    \item Designed and built a responsive and interactive user interface with Next.js, React, and TailwindCSS, ensuring an intuitive experience across all devices.
+    \item Architected a modular frontend with TypeScript to ensure type safety and scalability, separating concerns for API services, UI components, and state management.
+\end{itemize}
+\textbf{\href{https://github.com/NgnPhamGiaHuy/gemini-latex-enhancer}{Gemini LaTeX Enhancer – AI‑assisted CV enhancement with LaTeX outputs}}
+\begin{itemize}[leftmargin=*, noitemsep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt]
+    \item Engineered a full-stack application with a decoupled Next.js frontend and FastAPI backend to provide a seamless, multi-step workflow for AI-driven CV customization.
+    \item Integrated the Google Gemini API to perform deep content analysis, generating targeted suggestions to align CV content with job requirements and significantly reduce manual rewriting time.
+    \item Implemented a robust batch processing system, enabling users to tailor a single CV against multiple job descriptions from a CSV upload, automating a highly repetitive and time-consuming task.
+    \item Developed a backend service utilizing lualatex for automated LaTeX validation and PDF compilation, ensuring consistent, professional-grade document outputs and eliminating manual build steps.
+    \item Designed asynchronous task handling with real-time progress tracking and secure file management to deliver a reliable and transparent user experience during intensive processing operations.
+\end{itemize}
+
+%---------- Skills ----------
+\section*{Skills}
+\textbf{Core Concepts:} Object-Oriented Programming (OOP), RESTful APIs, Agile Methodologies.\\
+\textbf{Languages \& Frameworks:} JavaScript (ES6+), Python, React.js, Node.js, Next.js, Express.js, Flask, HTML, CSS.\\
+\textbf{Databases:} MySQL (SQL), MongoDB.\\
+\textbf{Developer Tools:} Git, Docker, Postman, Figma.\\
+\textbf{Familiar With:} TypeScript, Redux, Tailwind CSS, WordPress.
+
+%---------- Languages ----------
+\section*{Languages}
+\textbf{English:} Full Professional Proficiency (IELTS 6.5).\\
+\textbf{German:} Elementary Proficiency.
+
+\end{document}
