@@ -8,6 +8,7 @@ import { useFileUpload, useModelSelection } from "@/hooks";
 import ModelSelection from "./model-selection";
 import { FileUploadZone } from "@/components/ui/file-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppTooltip } from "@/components/ui/tooltip";
 
 const UploadStep = ({ step, selectedModel, onUploadSuccess, onLoadingChange, onModelChange }: UploadStepProps) => {
     const { models, isLoading, error } = useModelSelection({ onModelChange });
@@ -32,7 +33,11 @@ const UploadStep = ({ step, selectedModel, onUploadSuccess, onLoadingChange, onM
                         <p className="text-muted-foreground">Start by uploading your LaTeX CV file</p>
                     </CardHeader>
                     <CardContent>
-                        <FileUploadZone onDrop={handleFileUpload} isLoading={false} />
+                        <AppTooltip content="We support .tex files. Your CV is processed locally before enhancement.">
+                            <div>
+                                <FileUploadZone onDrop={handleFileUpload} isLoading={false} />
+                            </div>
+                        </AppTooltip>
                     </CardContent>
                 </Card>
             </div>

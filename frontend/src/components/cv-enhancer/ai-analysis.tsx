@@ -22,7 +22,7 @@ const AIAnalysis = ({ summary, loading }: AIAnalysisProps) => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-110">
+                    <ScrollArea className="h-120">
                         <div className="whitespace-pre-wrap text-sm leading-relaxed pr-4">
                             {hasContent ? (
                                 <div className="text-muted-foreground text-sm leading-relaxed">

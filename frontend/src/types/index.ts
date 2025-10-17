@@ -200,6 +200,7 @@ export interface DownloadStepProps {
     };
     onStartOver: () => void;
     onStartAgain?: () => void;
+    onBackToJobDetails?: () => void;
 }
 
 export interface UploadStepProps {

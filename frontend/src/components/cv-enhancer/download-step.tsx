@@ -8,8 +8,9 @@ import type { DownloadStepProps } from "@/types";
 import DownloadLinks from "./download-links";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppTooltip } from "@/components/ui/tooltip";
 
-const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain }: DownloadStepProps) => {
+const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain, onBackToJobDetails }: DownloadStepProps) => {
     if (step !== "download") return null;
 
     return (
@@ -25,13 +26,27 @@ const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain }: Downl
                 <CardContent className="space-y-4">
                     <DownloadLinks generateResult={generateResult} />
 
-                    <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <Button variant="secondary" onClick={onStartAgain} className="w-full transition-colors duration-200">
-                            Regenerate
-                        </Button>
-                        <Button variant="outline" onClick={onStartOver} className="w-full transition-colors duration-200">
-                            Start Over
-                        </Button>
+                    {/* Top row: Regenerate & Back to Job Details side-by-side on >= sm, stacked on mobile */}
+                    <div className="pt-4 border-t">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <AppTooltip content="Re-run enhancement with the same job details.">
+                                <Button variant="secondary" onClick={onStartAgain} className="w-full transition-colors duration-200">
+                                    Regenerate
+                                </Button>
+                            </AppTooltip>
+                            <AppTooltip content="Return to job details, keep your uploaded CV, and edit the job info.">
+                                <Button variant="default" onClick={onBackToJobDetails} className="w-full transition-colors duration-200">
+                                    Back to Job Details
+                                </Button>
+                            </AppTooltip>
+                        </div>
+
+                        {/* Bottom: full-width Start Over */}
+                        <AppTooltip content="Reset everything and upload a new CV.">
+                            <Button variant="outline" onClick={onStartOver} className="w-full transition-colors duration-200">
+                                Start Over
+                            </Button>
+                        </AppTooltip>
                     </div>
                 </CardContent>
             </Card>

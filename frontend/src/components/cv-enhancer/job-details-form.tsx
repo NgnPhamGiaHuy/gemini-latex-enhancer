@@ -13,6 +13,7 @@ import { LoadingButton } from "@/components/ui/loading";
 import { FileUploadZone } from "@/components/ui/file-upload";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppTooltip } from "@/components/ui/tooltip";
 
 const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescription, companyName, setCompanyName, sliceProjects, setSliceProjects, onEnhance, onBatchEnhance, loading }: JobDetailsFormProps) => {
     const [mode, setMode] = useState<"manual" | "csv">("manual");
@@ -45,19 +46,25 @@ const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescripti
                     <TabsContent value="manual" className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Job Title *</label>
-                            <Input placeholder="e.g., Senior Software Engineer" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} onBlur={() => handleFieldBlur("jobTitle")} className="h-11" />
+                            <AppTooltip content="Enter the exact title from the job posting to tailor your CV.">
+                                <Input placeholder="e.g., Senior Software Engineer" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} onBlur={() => handleFieldBlur("jobTitle")} className="h-11" />
+                            </AppTooltip>
                             {touchedFields.jobTitle && errors.jobTitle && <p className="text-sm text-red-500">{errors.jobTitle}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Company Name</label>
-                            <Input placeholder="e.g., Google, Microsoft" value={companyName} onChange={(e) => setCompanyName(e.target.value)} onBlur={() => handleFieldBlur("companyName")} className="h-11" />
+                            <AppTooltip content="Optional. Improves tone and relevance if provided.">
+                                <Input placeholder="e.g., Google, Microsoft" value={companyName} onChange={(e) => setCompanyName(e.target.value)} onBlur={() => handleFieldBlur("companyName")} className="h-11" />
+                            </AppTooltip>
                             {touchedFields.companyName && errors.companyName && <p className="text-sm text-red-500">{errors.companyName}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Job Description *</label>
-                            <Textarea placeholder="Paste the job description here..." value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} onBlur={() => handleFieldBlur("jobDescription")} rows={8} className="resize-none min-h-[200px] max-h-[300px] overflow-y-auto" />
+                            <AppTooltip content="Paste the full description. The AI extracts keywords, skills, and responsibilities.">
+                                <Textarea placeholder="Paste the job description here..." value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} onBlur={() => handleFieldBlur("jobDescription")} className="resize-none h-40 overflow-y-auto" />
+                            </AppTooltip>
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>
                                     {jobDescription.length > 15000 ? (
@@ -83,7 +90,9 @@ const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescripti
                                     Slice personal projects to fit one page
                                 </label>
                             </div>
-                            <p className="text-xs text-muted-foreground ml-6">When enabled, AI will intelligently select only the most job-relevant projects (2-3 projects max) to ensure your CV fits on one page.</p>
+                            <AppTooltip content="Keeps the CV concise by limiting projects to the most relevant ones.">
+                                <p className="text-xs text-muted-foreground ml-6">When enabled, AI will intelligently select only the most job-relevant projects (2-3 projects max) to ensure your CV fits on one page.</p>
+                            </AppTooltip>
                         </div>
 
                         <LoadingButton isLoading={loading} onClick={onEnhance} disabled={!isValid} className="w-full h-11">

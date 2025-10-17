@@ -44,7 +44,7 @@ const STEPS = [
 
 const CVEnhancer = () => {
     const isClient = useClientSide();
-    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetState } = useCVEnhancer();
+    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetState, resetForNewJob } = useCVEnhancer();
 
     // Create a regenerate handler that reuses current inputs
     const { handleEnhancement: regenerateEnhancement } = useCVEnhancement({
@@ -133,6 +133,9 @@ const CVEnhancer = () => {
                             modelId: selectedModel,
                             sliceProjects,
                         });
+                    }}
+                    onBackToJobDetails={() => {
+                        resetForNewJob();
                     }}
                 />
 
