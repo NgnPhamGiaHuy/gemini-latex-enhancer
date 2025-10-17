@@ -11,7 +11,7 @@ from app.utils.response_builder import ResponseBuilder
 from app.utils.logger import get_logger
 from typing import Optional
 import os
-from app.services.job_parser import JobCSVParser
+from app.services.job_parser import JobFileParser
 from app.services.output_manager import OutputManager
 from app.services.progress_service import ProgressService
 import uuid
@@ -119,26 +119,27 @@ async def enhance_cv_batch(
     session_id: str = Form(...),
     latex_content: str = Form(...),
     model_id: Optional[str] = Form(None),
-    csv_file: UploadFile = File(...),
+    job_file: UploadFile = File(...),
     slice_projects: bool = Form(False),
 ):
-    """Batch-enhance a CV for multiple jobs defined in a CSV.
+    """Batch-enhance a CV for multiple jobs defined in a CSV or JSON file.
 
-    The CSV must include headers for Job Title and Job Description; Company Name
-    is optional. Produces per-job LaTeX/PDF files and a zip archive.
+    The file must include fields for Job Title and Job Description; Company Name
+    is optional. Supports flexible field naming (e.g., "job title", "position_title", etc.).
+    Produces per-job LaTeX/PDF files and a zip archive.
 
     Args:
         session_id: Progress/session identifier.
         latex_content: Source LaTeX CV.
         model_id: Optional model selection.
-        csv_file: CSV file upload listing job entries.
+        job_file: CSV or JSON file upload listing job entries.
         slice_projects: Enable intelligent project selection.
 
     Returns:
         Success response containing results array and `zip_path`.
     """
     try:
-        jobs = await JobCSVParser.parse(csv_file)
+        jobs = await JobFileParser.parse(job_file)
 
         # Initialize progress
         ProgressService.init(
@@ -262,27 +263,27 @@ async def get_progress(session_id: str):
     )
 
 
-@router.post("/csv/preview")
-async def preview_csv(csv_file: UploadFile = File(...)):
-    """Preview the CSV headers and first rows with quoted-field handling.
+@router.post("/file/preview")
+async def preview_file(file: UploadFile = File(...)):
+    """Preview the file headers and first rows with quoted-field handling.
 
     Args:
-        csv_file: CSV containing job entries.
+        file: CSV or JSON file containing job entries.
 
     Returns:
         Success response with `headers` and `rows` (up to a small limit).
     """
     try:
-        headers, rows = await JobCSVParser.preview(csv_file)
+        headers, rows = await JobFileParser.preview(file)
 
         return ResponseBuilder.success_response(
             data={
                 "headers": headers,
                 "rows": rows,
             },
-            message="CSV preview generated",
+            message="File preview generated",
         )
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"CSV preview failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"File preview failed: {str(e)}")

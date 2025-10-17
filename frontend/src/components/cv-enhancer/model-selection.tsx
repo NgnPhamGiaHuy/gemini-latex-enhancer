@@ -10,9 +10,9 @@ import type { ModelSelectionProps } from "@/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ModelSelection = ({ models, selectedModel, defaultModel, isLoading, error, onModelChange, className }: ModelSelectionProps) => {
     const [searchTerm, setSearchTerm] = useState("");

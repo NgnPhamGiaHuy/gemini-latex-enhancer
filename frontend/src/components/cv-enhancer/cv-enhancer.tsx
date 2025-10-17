@@ -8,46 +8,19 @@ import UploadStep from "./upload-step";
 import DownloadStep from "./download-step";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { FullScreenProgress } from "@/components/ui/fullscreen-progress";
-
-import { useCVEnhancer, useClientSide, useCVEnhancement } from "@/hooks";
-import type { Step } from "@/types";
-
-function getProgressTitle(message: string): string {
-    if (message.includes("Preparing")) return "Preparing Enhancement";
-    if (message.includes("Analyzing")) return "Analyzing Job Requirements";
-    if (message.includes("Generating")) return "Generating Enhanced CV";
-    if (message.includes("Compiling")) return "Compiling LaTeX to PDF";
-    if (message.includes("completed")) return "Enhancement Complete!";
-    if (message.includes("failed")) return "Enhancement Failed";
-    return "Enhancing Your CV";
-}
-
-function getProgressSubtitle(message: string): string {
-    if (message.includes("Preparing")) return "Setting up AI processing pipeline...";
-    if (message.includes("Analyzing")) return "Extracting key requirements and skills from job description...";
-    if (message.includes("Generating")) return "AI is optimizing your CV content to match job requirements...";
-    if (message.includes("Compiling")) return "Converting enhanced LaTeX to PDF format...";
-    if (message.includes("completed")) return "Your CV is ready for download!";
-    if (message.includes("failed")) return "Something went wrong. Please try again.";
-    return "AI is analyzing and optimizing your CV to match the job requirements";
-}
-
-const STEPS = [
-    { id: "upload", title: "Upload CV", description: "Upload your LaTeX CV" },
-    { id: "align", title: "Job Details", description: "Enter target job info" },
-    { id: "download", title: "Download", description: "Get your tailored CV" },
-] as const satisfies readonly {
-    id: Step;
-    title: string;
-    description: string;
-}[];
+import { getProgressTitle, getProgressSubtitle, STEPS } from "@/constants/enhancer";
+import { useClientSide, useCVEnhancement, useEnhancerWorkflow, useEnhancerJobData, useEnhancerProgress, useEnhancerModelConfig, useEnhancerResults, useEnhancerCVContent } from "@/hooks";
 
 const CVEnhancer = () => {
     const isClient = useClientSide();
-    const { step, sessionId, summary, originalLatexContent, jobTitle, jobDescription, companyName, sliceProjects, selectedModel, generateResult, loading, progress, progressMessage, setStep, setSessionId, setSummary, setSections, setOriginalLatexContent, setJobTitle, setJobDescription, setCompanyName, setSliceProjects, setSelectedModel, setGenerateResult, handleLoadingChange, resetState, resetForNewJob } = useCVEnhancer();
+    const { step, sessionId, setStep, setSessionId, resetWorkflow } = useEnhancerWorkflow();
+    const { summary, originalLatexContent, setSummary, setSections, setOriginalLatexContent, resetCVContent } = useEnhancerCVContent();
+    const { jobTitle, jobDescription, companyName, inputMethod, originalJobFile, setJobTitle, setJobDescription, setCompanyName, setInputMethod, setOriginalJobFile, resetJobData } = useEnhancerJobData();
+    const { selectedModel, sliceProjects, setSelectedModel, setSliceProjects, resetModelConfig } = useEnhancerModelConfig();
+    const { generateResult, setGenerateResult, resetResults } = useEnhancerResults();
+    const { loading, progress, progressMessage, handleLoadingChange, resetProgress } = useEnhancerProgress();
 
-    // Create a regenerate handler that reuses current inputs
-    const { handleEnhancement: regenerateEnhancement } = useCVEnhancement({
+    const { handleEnhancement: regenerateEnhancement, handleBatchEnhancement: regenerateBatchEnhancement } = useCVEnhancement({
         onEnhanceSuccess: (result) => {
             setGenerateResult(result);
             setStep("download");
@@ -112,17 +85,45 @@ const CVEnhancer = () => {
                     onEnhanceSuccess={(result) => {
                         setGenerateResult(result);
                         setStep("download");
+                        setInputMethod("manual");
                     }}
                     onLoadingChange={handleLoadingChange}
                     sessionId={sessionId}
                     originalLatexContent={originalLatexContent}
+                    onBatchJobDetailsExtracted={(jobDetails) => {
+                        setJobTitle(jobDetails.jobTitle);
+                        setJobDescription(jobDetails.jobDescription);
+                        setCompanyName(jobDetails.companyName);
+                    }}
+                    onBatchEnhancementSuccess={(result, jobFile) => {
+                        setGenerateResult(result);
+                        setStep("download");
+                        setInputMethod("file");
+                        setOriginalJobFile(jobFile);
+                    }}
                 />
 
                 <DownloadStep
                     step={step}
                     generateResult={generateResult}
-                    onStartOver={resetState}
-                    onStartAgain={async () => {
+                    onStartOver={() => {
+                        resetWorkflow();
+                        resetCVContent();
+                        resetJobData();
+                        resetModelConfig();
+                        resetResults();
+                        resetProgress();
+                    }}
+                    onBackToJobDetails={() => {
+                        // Keep uploaded CV and AI summary/sections, clear job-specific inputs and results
+                        resetResults();
+                        resetProgress();
+                        resetJobData();
+                        setSliceProjects(true);
+                        setStep("align");
+                    }}
+                    inputMethod={inputMethod}
+                    onRegenerateSingle={async () => {
                         if (!sessionId) return;
                         await regenerateEnhancement({
                             sessionId,
@@ -134,8 +135,15 @@ const CVEnhancer = () => {
                             sliceProjects,
                         });
                     }}
-                    onBackToJobDetails={() => {
-                        resetForNewJob();
+                    onRegenerateBatch={async () => {
+                        if (!sessionId || !originalJobFile) return;
+                        await regenerateBatchEnhancement({
+                            sessionId,
+                            latexContent: originalLatexContent,
+                            jobFile: originalJobFile,
+                            modelId: selectedModel,
+                            sliceProjects,
+                        });
                     }}
                 />
 

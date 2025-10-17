@@ -15,14 +15,12 @@ const useAIAnalysis = (summary: string): FormattedAnalysis => {
         const sections = parts
             .map((part, index) => {
                 if (index % 2 === 1) {
-                    // This is a bold section (between **)
                     return {
                         title: part.replace(/:\s*$/, ""),
                         content: "",
                         isHeader: true,
                     };
                 } else if (part.trim()) {
-                    // This is regular text - clean up any leading colons
                     const cleanText = part.replace(/^:\s*/, "").trim();
                     if (cleanText) {
                         return {

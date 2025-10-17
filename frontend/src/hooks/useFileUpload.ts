@@ -10,13 +10,11 @@ const useFileUpload = ({ onUploadSuccess, onLoadingChange, selectedModel }: UseF
         async (acceptedFiles: File[]) => {
             if (!acceptedFiles.length) return;
 
-            // Start loading with progress tracking
             onLoadingChange(true, 10, "Uploading CV file...");
 
             try {
                 console.log("=== FRONTEND UPLOAD HANDLER STARTED ===");
 
-                // Simulate progress stages
                 onLoadingChange(true, 30, "Processing LaTeX content...");
 
                 const res = await uploadTex(acceptedFiles[0], selectedModel);
@@ -24,7 +22,6 @@ const useFileUpload = ({ onUploadSuccess, onLoadingChange, selectedModel }: UseF
 
                 onLoadingChange(true, 60, "Generating AI analysis...");
 
-                // Store the original LaTeX content for enhancement
                 const fileContent = await acceptedFiles[0].text();
 
                 onLoadingChange(true, 90, "Finalizing analysis...");

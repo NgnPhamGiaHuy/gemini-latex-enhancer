@@ -61,17 +61,73 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
     return {
         handleEnhancement,
         handleBatchEnhancement: useCallback(
-            async (params: { sessionId: string; latexContent: string; csvFile: File; modelId?: string; sliceProjects?: boolean; onProgress?: (current: number, total: number) => void }) => {
-                const { sessionId, latexContent, csvFile, modelId, sliceProjects, onProgress } = params;
+            async (params: { sessionId: string; latexContent: string; jobFile: File; modelId?: string; sliceProjects?: boolean; onProgress?: (current: number, total: number) => void; onJobDetailsExtracted?: (jobDetails: { jobTitle: string; jobDescription: string; companyName: string }) => void }) => {
+                const { sessionId, latexContent, jobFile, modelId, sliceProjects, onProgress, onJobDetailsExtracted } = params;
                 if (!sessionId) return;
 
                 onLoadingChange(true, 10, "Preparing batch enhancement...");
                 try {
+                    // First, preview the file to extract job details for regeneration
+                    if (onJobDetailsExtracted) {
+                        try {
+                            const preview = await import("@/lib/api").then((m) => m.previewFile(jobFile));
+                            if (preview.headers && preview.rows && preview.rows.length > 0) {
+                                const headersLower = preview.headers.map((h) => h.toLowerCase());
+
+                                // Find job title field
+                                let jobTitleField = "";
+                                for (const header of preview.headers) {
+                                    const headerLower = header.toLowerCase();
+                                    if (headerLower.includes("title") || headerLower.includes("position") || headerLower.includes("role") || headerLower.includes("job")) {
+                                        jobTitleField = header;
+                                        break;
+                                    }
+                                }
+
+                                // Find job description field
+                                let jobDescField = "";
+                                for (const header of preview.headers) {
+                                    const headerLower = header.toLowerCase();
+                                    if (headerLower.includes("description") || headerLower.includes("desc") || headerLower.includes("responsibilities") || headerLower.includes("duties")) {
+                                        jobDescField = header;
+                                        break;
+                                    }
+                                }
+
+                                // Find company name field
+                                let companyField = "";
+                                for (const header of preview.headers) {
+                                    const headerLower = header.toLowerCase();
+                                    if (headerLower.includes("company") || headerLower.includes("employer") || headerLower.includes("organization") || headerLower.includes("firm")) {
+                                        companyField = header;
+                                        break;
+                                    }
+                                }
+
+                                // Extract first job's details
+                                const firstRow = preview.rows[0];
+                                const jobTitleIndex = preview.headers.indexOf(jobTitleField);
+                                const jobDescIndex = preview.headers.indexOf(jobDescField);
+                                const companyIndex = preview.headers.indexOf(companyField);
+
+                                const jobDetails = {
+                                    jobTitle: jobTitleIndex >= 0 ? firstRow[jobTitleIndex] || "" : "",
+                                    jobDescription: jobDescIndex >= 0 ? firstRow[jobDescIndex] || "" : "",
+                                    companyName: companyIndex >= 0 ? firstRow[companyIndex] || "" : "",
+                                };
+
+                                onJobDetailsExtracted(jobDetails);
+                            }
+                        } catch (e) {
+                            console.warn("Failed to extract job details for regeneration:", e);
+                        }
+                    }
+
                     // Kick off batch
                     const resPromise = alignSectionsBatch({
                         session_id: sessionId,
                         latex_content: latexContent,
-                        csv_file: csvFile,
+                        job_file: jobFile,
                         model_id: modelId,
                         slice_projects: sliceProjects,
                     });

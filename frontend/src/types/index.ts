@@ -1,51 +1,84 @@
 // Global/shared app types
-
-// App step flow
 export type Step = "upload" | "align" | "download";
 
-// Hooks: useCVEnhancer
-export interface CVEnhancerState {
+export interface EnhancerWorkflowState {
     step: Step;
     sessionId: string | null;
-    summary: string;
-    sections: import("@/lib/api").Section[];
-    originalLatexContent: string;
+}
+
+export interface EnhancerWorkflowActions {
+    setStep: (step: Step) => void;
+    setSessionId: (id: string | null) => void;
+    resetWorkflow: () => void;
+}
+
+export interface EnhancerJobDataState {
     jobTitle: string;
     jobDescription: string;
     companyName: string;
-    sliceProjects: boolean;
+    inputMethod: "manual" | "file" | null;
+    originalJobFile: File | null;
+}
+
+export interface EnhancerJobDataActions {
+    setJobTitle: (value: string) => void;
+    setJobDescription: (value: string) => void;
+    setCompanyName: (value: string) => void;
+    setInputMethod: (method: "manual" | "file" | null) => void;
+    setOriginalJobFile: (file: File | null) => void;
+    resetJobData: () => void;
+}
+
+export interface EnhancerProgressState {
+    loading: boolean;
+    progress: number;
+    progressMessage: string;
+}
+
+export interface EnhancerProgressActions {
+    setLoading: (value: boolean) => void;
+    setProgress: (value: number) => void;
+    setProgressMessage: (value: string) => void;
+    handleLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    resetProgress: () => void;
+}
+
+export interface EnhancerModelConfigState {
     selectedModel: string;
+    sliceProjects: boolean;
+}
+
+export interface EnhancerModelConfigActions {
+    setSelectedModel: (modelId: string) => void;
+    setSliceProjects: (value: boolean) => void;
+    resetModelConfig: () => void;
+}
+
+export interface EnhancerResultsState {
     generateResult: {
         tex?: string;
         pdf?: string | null;
     };
-    loading: boolean;
-    progress: number;
-    progressMessage: string;
-    isClient: boolean;
 }
 
-export interface CVEnhancerActions {
-    setStep: (step: Step) => void;
-    setSessionId: (sessionId: string | null) => void;
-    setSummary: (summary: string) => void;
-    setSections: (sections: import("@/lib/api").Section[]) => void;
-    setOriginalLatexContent: (content: string) => void;
-    setJobTitle: (title: string) => void;
-    setJobDescription: (description: string) => void;
-    setCompanyName: (name: string) => void;
-    setSliceProjects: (sliceProjects: boolean) => void;
-    setSelectedModel: (modelId: string) => void;
+export interface EnhancerResultsActions {
     setGenerateResult: (result: { tex?: string; pdf?: string | null }) => void;
-    setLoading: (loading: boolean) => void;
-    setProgress: (progress: number) => void;
-    setProgressMessage: (message: string) => void;
-    handleLoadingChange: (loading: boolean, progress: number, message?: string) => void;
-    resetForNewJob: () => void;
-    resetState: () => void;
+    resetResults: () => void;
 }
 
-// Hooks: useCVEnhancement
+export interface EnhancerCVContentState {
+    originalLatexContent: string;
+    summary: string;
+    sections: import("@/lib/api").Section[];
+}
+
+export interface EnhancerCVContentActions {
+    setOriginalLatexContent: (value: string) => void;
+    setSummary: (value: string) => void;
+    setSections: (value: import("@/lib/api").Section[]) => void;
+    resetCVContent: () => void;
+}
+
 export interface EnhancementParams {
     sessionId: string;
     jobTitle: string;
@@ -61,7 +94,6 @@ export interface UseCVEnhancementProps {
     onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
 }
 
-// Hooks: useFormValidation
 export interface ValidationRules {
     maxJobTitleLength: number;
     maxJobDescriptionLength: number;
@@ -89,22 +121,6 @@ export interface UseFormValidationProps {
     rules?: Partial<ValidationRules>;
 }
 
-// Hooks: useProgressTracking
-export interface ProgressState {
-    loading: boolean;
-    progress: number;
-    message: string;
-}
-
-export interface ProgressActions {
-    setLoading: (loading: boolean) => void;
-    setProgress: (progress: number) => void;
-    setMessage: (message: string) => void;
-    updateProgress: (loading: boolean, progress: number, message?: string) => void;
-    resetProgress: () => void;
-}
-
-// Hooks: useModelSelection
 export interface UseModelSelectionProps {
     onModelChange?: (modelId: string) => void;
 }
@@ -119,23 +135,6 @@ export interface UseModelSelectionReturn {
     refreshModels: () => Promise<void>;
 }
 
-// Hooks: useJobDetails
-export interface JobDetailsState {
-    jobTitle: string;
-    jobDescription: string;
-    companyName: string;
-}
-
-export interface JobDetailsActions {
-    setJobTitle: (title: string) => void;
-    setJobDescription: (description: string) => void;
-    setCompanyName: (name: string) => void;
-    resetJobDetails: () => void;
-    isFormValid: boolean;
-    getJobDetails: () => JobDetailsState;
-}
-
-// Hooks: useFileUpload
 export interface UploadData {
     sessionId: string;
     summary: string;
@@ -149,7 +148,6 @@ export interface UseFileUploadProps {
     selectedModel?: string;
 }
 
-// Hooks: useAIAnalysis
 export interface FormattedAnalysis {
     sections: Array<{
         title: string;
@@ -159,7 +157,6 @@ export interface FormattedAnalysis {
     hasContent: boolean;
 }
 
-// Component prop types (moved from components/types)
 export interface JobDetailsFormProps {
     jobTitle: string;
     setJobTitle: (value: string) => void;
@@ -169,7 +166,7 @@ export interface JobDetailsFormProps {
     setCompanyName: (value: string) => void;
     sliceProjects: boolean;
     setSliceProjects: (value: boolean) => void;
-    onBatchEnhance?: (params: { csvFile: File }) => void;
+    onBatchEnhance?: (params: { jobFile: File }) => void;
     onEnhance: () => void;
     loading: boolean;
 }
@@ -190,6 +187,8 @@ export interface AlignStepProps {
     onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
     sessionId: string | null;
     originalLatexContent: string;
+    onBatchJobDetailsExtracted?: (jobDetails: { jobTitle: string; jobDescription: string; companyName: string }) => void;
+    onBatchEnhancementSuccess?: (result: { tex?: string; pdf?: string | null }, jobFile: File) => void;
 }
 
 export interface DownloadStepProps {
@@ -201,6 +200,9 @@ export interface DownloadStepProps {
     onStartOver: () => void;
     onStartAgain?: () => void;
     onBackToJobDetails?: () => void;
+    inputMethod?: "manual" | "file" | null;
+    onRegenerateSingle?: () => void;
+    onRegenerateBatch?: () => void;
 }
 
 export interface UploadStepProps {

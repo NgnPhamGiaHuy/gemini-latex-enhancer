@@ -1,14 +1,15 @@
 "use client";
-import { motion } from "framer-motion";
+
 import { Upload } from "lucide-react";
+import { motion } from "framer-motion";
 
 import type { UploadStepProps } from "@/types";
 
-import { useFileUpload, useModelSelection } from "@/hooks";
 import ModelSelection from "./model-selection";
+import { AppTooltip } from "@/components/ui/tooltip";
 import { FileUploadZone } from "@/components/ui/file-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppTooltip } from "@/components/ui/tooltip";
+import { useFileUpload, useModelSelection } from "@/hooks";
 
 const UploadStep = ({ step, selectedModel, onUploadSuccess, onLoadingChange, onModelChange }: UploadStepProps) => {
     const { models, isLoading, error } = useModelSelection({ onModelChange });

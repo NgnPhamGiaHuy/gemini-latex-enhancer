@@ -8,11 +8,8 @@ import AIAnalysis from "./ai-analysis";
 import JobDetailsForm from "./job-details-form";
 import { useCVEnhancement } from "@/hooks";
 
-const AlignStep = ({ step, summary, jobTitle, setJobTitle, jobDescription, setJobDescription, companyName, setCompanyName, sliceProjects, setSliceProjects, selectedModel, onEnhanceSuccess, onLoadingChange, sessionId, originalLatexContent }: AlignStepProps) => {
-    const { handleEnhancement, handleBatchEnhancement } = useCVEnhancement({
-        onEnhanceSuccess,
-        onLoadingChange,
-    });
+const AlignStep = ({ step, summary, jobTitle, setJobTitle, jobDescription, setJobDescription, companyName, setCompanyName, sliceProjects, setSliceProjects, selectedModel, onEnhanceSuccess, onLoadingChange, sessionId, originalLatexContent, onBatchJobDetailsExtracted, onBatchEnhancementSuccess }: AlignStepProps) => {
+    const { handleEnhancement, handleBatchEnhancement } = useCVEnhancement({ onEnhanceSuccess, onLoadingChange });
 
     const handleEnhance = () => {
         if (!sessionId) return;
@@ -36,17 +33,21 @@ const AlignStep = ({ step, summary, jobTitle, setJobTitle, jobDescription, setJo
                     sliceProjects={sliceProjects}
                     setSliceProjects={setSliceProjects}
                     onEnhance={handleEnhance}
-                    onBatchEnhance={async ({ csvFile }) => {
+                    onBatchEnhance={async ({ jobFile }) => {
                         if (!sessionId) return;
                         const res = await handleBatchEnhancement({
                             sessionId,
                             latexContent: originalLatexContent,
-                            csvFile,
+                            jobFile,
                             modelId: selectedModel,
                             sliceProjects,
+                            onJobDetailsExtracted: onBatchJobDetailsExtracted,
                         });
-                        // After batch completes, move to download step with zip only
-                        onEnhanceSuccess({ tex: res?.zip_path });
+                        const result = { tex: res?.zip_path };
+                        onEnhanceSuccess(result);
+                        if (onBatchEnhancementSuccess) {
+                            onBatchEnhancementSuccess(result, jobFile);
+                        }
                     }}
                     loading={false}
                 />

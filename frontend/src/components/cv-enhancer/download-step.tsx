@@ -7,10 +7,10 @@ import type { DownloadStepProps } from "@/types";
 
 import DownloadLinks from "./download-links";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppTooltip } from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain, onBackToJobDetails }: DownloadStepProps) => {
+const DownloadStep = ({ step, generateResult, onStartOver, onBackToJobDetails, inputMethod, onRegenerateSingle, onRegenerateBatch }: DownloadStepProps) => {
     if (step !== "download") return null;
 
     return (
@@ -29,11 +29,19 @@ const DownloadStep = ({ step, generateResult, onStartOver, onStartAgain, onBackT
                     {/* Top row: Regenerate & Back to Job Details side-by-side on >= sm, stacked on mobile */}
                     <div className="pt-4 border-t">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <AppTooltip content="Re-run enhancement with the same job details.">
-                                <Button variant="secondary" onClick={onStartAgain} className="w-full transition-colors duration-200">
-                                    Regenerate
-                                </Button>
-                            </AppTooltip>
+                            {inputMethod === "file" ? (
+                                <AppTooltip content="Re-run batch enhancement with all jobs from the uploaded file.">
+                                    <Button variant="secondary" onClick={onRegenerateBatch} className="w-full transition-colors duration-200">
+                                        Regenerate All Jobs
+                                    </Button>
+                                </AppTooltip>
+                            ) : (
+                                <AppTooltip content="Re-run enhancement with the same job details.">
+                                    <Button variant="secondary" onClick={onRegenerateSingle} className="w-full transition-colors duration-200">
+                                        Regenerate
+                                    </Button>
+                                </AppTooltip>
+                            )}
                             <AppTooltip content="Return to job details, keep your uploaded CV, and edit the job info.">
                                 <Button variant="default" onClick={onBackToJobDetails} className="w-full transition-colors duration-200">
                                     Back to Job Details

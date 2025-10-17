@@ -1,31 +1,72 @@
 "use client";
+
 import { useState } from "react";
 import { Target, Sparkles, Scissors } from "lucide-react";
 
 import type { JobDetailsFormProps } from "@/types";
 
-import { previewCSV } from "@/lib/api";
+import { previewFile } from "@/lib/api";
 import { useFormValidation } from "@/hooks";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AppTooltip } from "@/components/ui/tooltip";
 import { LoadingButton } from "@/components/ui/loading";
 import { FileUploadZone } from "@/components/ui/file-upload";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppTooltip } from "@/components/ui/tooltip";
 
 const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescription, companyName, setCompanyName, sliceProjects, setSliceProjects, onEnhance, onBatchEnhance, loading }: JobDetailsFormProps) => {
-    const [mode, setMode] = useState<"manual" | "csv">("manual");
-    const [csvFile, setCsvFile] = useState<File | null>(null);
-    const [csvError, setCsvError] = useState<string>("");
-    const [csvPreview, setCsvPreview] = useState<string[][]>([]);
+    const [mode, setMode] = useState<"manual" | "file">("manual");
+    const [jobFile, setJobFile] = useState<File | null>(null);
+    const [fileError, setFileError] = useState<string>("");
+    const [filePreview, setFilePreview] = useState<string[][]>([]);
     const [touchedFields, setTouchedFields] = useState({ jobTitle: false, jobDescription: false, companyName: false });
 
     const { isValid, errors, warnings } = useFormValidation({ jobTitle, jobDescription, companyName });
 
     const handleFieldBlur = (fieldName: keyof typeof touchedFields) => {
         setTouchedFields((prev) => ({ ...prev, [fieldName]: true }));
+    };
+
+    const handleFileRemove = () => {
+        setJobFile(null);
+        setFilePreview([]);
+        setFileError("");
+    };
+
+    const handleFileUpload = async (files: File[]) => {
+        const file = files[0];
+        if (!file) return;
+
+        // Validate file type
+        const fileExtension = file.name.toLowerCase().split(".").pop();
+        if (!["csv", "json"].includes(fileExtension || "")) {
+            setFileError("Please upload a CSV or JSON file.");
+            return;
+        }
+
+        setJobFile(file);
+        setFilePreview([]);
+        setFileError("");
+
+        try {
+            const preview = await previewFile(file);
+            const headersLower = preview.headers.map((h) => h.toLowerCase());
+
+            // Check for required fields with flexible matching
+            const hasTitle = headersLower.some((h) => h.includes("title") || h.includes("position") || h.includes("role") || h.includes("job"));
+            const hasDesc = headersLower.some((h) => h.includes("description") || h.includes("desc") || h.includes("responsibilities") || h.includes("duties"));
+
+            if (!hasTitle || !hasDesc) {
+                setFileError("File must include Job Title and Job Description fields (or their variations).");
+                return;
+            }
+
+            setFilePreview([preview.headers, ...preview.rows]);
+        } catch {
+            setFileError("Failed to preview file");
+        }
     };
 
     return (
@@ -37,10 +78,10 @@ const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescripti
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <Tabs value={mode} onValueChange={(v: string) => setMode(v as "manual" | "csv")}>
+                <Tabs value={mode} onValueChange={(v: string) => setMode(v as "manual" | "file")}>
                     <TabsList className="grid grid-cols-2 w-full">
                         <TabsTrigger value="manual">Manual Input</TabsTrigger>
-                        <TabsTrigger value="csv">CSV Upload</TabsTrigger>
+                        <TabsTrigger value="file">File Upload</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="manual" className="space-y-4">
@@ -101,59 +142,45 @@ const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescripti
                         </LoadingButton>
                     </TabsContent>
 
-                    <TabsContent value="csv" className="space-y-4">
+                    <TabsContent value="file" className="space-y-4">
                         <div className="space-y-2">
-                            {!csvPreview.length && (
+                            {!filePreview.length && (
                                 <FileUploadZone
-                                    onDrop={async (files: File[]) => {
-                                        const file = files[0];
-                                        if (!file) return;
-                                        setCsvFile(file);
-                                        setCsvPreview([]);
-                                        setCsvError("");
-                                        try {
-                                            const preview = await previewCSV(file);
-                                            const headersLower = preview.headers.map((h) => h.toLowerCase());
-                                            const hasTitle = headersLower.includes("job title");
-                                            const hasDesc = headersLower.includes("job description");
-                                            if (!hasTitle || !hasDesc) {
-                                                setCsvError("CSV must include Job Title and Job Description columns.");
-                                                return;
-                                            }
-                                            setCsvPreview([preview.headers, ...preview.rows]);
-                                        } catch {
-                                            setCsvError("Failed to preview CSV");
-                                        }
-                                    }}
+                                    onDrop={handleFileUpload}
                                     isLoading={false}
-                                    accept=".csv"
-                                    title="Upload your CSV"
+                                    accept=".csv,.json"
+                                    title="Upload your job file"
                                     description={
                                         (
                                             <>
-                                                Drag and drop your <code className="px-1 py-0.5 bg-muted rounded text-xs">.csv</code> file here, or click to browse
+                                                Drag and drop your <code className="px-1 py-0.5 bg-muted rounded text-xs">.csv</code> or <code className="px-1 py-0.5 bg-muted rounded text-xs">.json</code> file here, or click to browse
                                             </>
                                         ) as unknown as string
                                     }
-                                    processingText="Reading CSV..."
+                                    processingText="Reading file..."
                                 />
                             )}
 
-                            {csvError && <p className="text-sm text-red-500">{csvError}</p>}
+                            {fileError && <p className="text-sm text-red-500">{fileError}</p>}
 
-                            {csvPreview.length > 0 && (
-                                <div className="text-xs text-muted-foreground">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <p>Valid CSV detected. Preview (first 3 rows):</p>
-                                        {csvFile && <p className="text-[11px] text-muted-foreground">{csvFile.name}</p>}
+                            {filePreview.length > 0 && jobFile && (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-xs text-muted-foreground">
+                                            <p>Valid file detected. Preview (first 3 entries):</p>
+                                            <p className="text-[11px] text-muted-foreground">{jobFile.name}</p>
+                                        </div>
+                                        <button onClick={handleFileRemove} className="text-red-500 hover:text-red-700 text-sm font-medium" type="button">
+                                            × Remove
+                                        </button>
                                     </div>
                                     <div className="rounded-md border overflow-hidden">
                                         <div className="grid grid-cols-3 gap-2 p-2 font-medium bg-muted/50">
-                                            {(csvPreview[0] || []).slice(0, 3).map((h, i) => (
+                                            {(filePreview[0] || []).slice(0, 3).map((h, i) => (
                                                 <div key={i}>{h}</div>
                                             ))}
                                         </div>
-                                        {csvPreview.slice(1, 4).map((row, idx) => (
+                                        {filePreview.slice(1, 4).map((row, idx) => (
                                             <div className="grid grid-cols-3 gap-2 p-2 border-t" key={idx}>
                                                 {row.slice(0, 3).map((c, i) => (
                                                     <div key={i} className="truncate" title={c}>
@@ -176,7 +203,7 @@ const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescripti
                             </div>
                         </div>
 
-                        <LoadingButton isLoading={loading} onClick={() => csvFile && onBatchEnhance && onBatchEnhance({ csvFile })} disabled={!csvFile || !!csvError} className="w-full h-11">
+                        <LoadingButton isLoading={loading} onClick={() => jobFile && onBatchEnhance && onBatchEnhance({ jobFile })} disabled={!jobFile || !!fileError} className="w-full h-11">
                             <Sparkles className="h-4 w-4" />
                             Start Batch Enhancement
                         </LoadingButton>

@@ -1,0 +1,17 @@
+[
+    {
+        "position_title": "Senior Frontend Developer",
+        "job_description": "Build responsive web applications using React, TypeScript, and modern CSS frameworks. Lead frontend architecture decisions and mentor junior developers.",
+        "company_name": "WebTech Solutions"
+    },
+    {
+        "role": "DevOps Engineer",
+        "description": "Manage cloud infrastructure on AWS. Implement CI/CD pipelines, monitor system performance, and ensure high availability of production systems.",
+        "employer": "CloudScale Inc"
+    },
+    {
+        "job": "UX Designer",
+        "job_desc": "Design intuitive user interfaces and user experiences. Conduct user research, create wireframes and prototypes, and collaborate with development teams.",
+        "organization": "DesignStudio"
+    }
+]

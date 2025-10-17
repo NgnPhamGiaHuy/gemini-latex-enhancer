@@ -24,7 +24,6 @@ const useModelSelection = ({ onModelChange }: UseModelSelectionProps = {}): UseM
             setModels(response.models);
             setDefaultModel(response.default_model);
 
-            // Set selected model to default if not already set
             if (!selectedModel) {
                 setSelectedModelState(response.default_model);
                 onModelChange?.(response.default_model);

@@ -16,7 +16,6 @@ const useFormValidation = ({ jobTitle, jobDescription, companyName, rules = {} }
         const errors: ValidationState["errors"] = {};
         const warnings: ValidationState["warnings"] = {};
 
-        // Job Title validation
         if (!jobTitle.trim()) {
             errors.jobTitle = "Job title is required";
         } else if (jobTitle.length < validationRules.minJobTitleLength) {
@@ -25,7 +24,6 @@ const useFormValidation = ({ jobTitle, jobDescription, companyName, rules = {} }
             errors.jobTitle = `Job title must be less than ${validationRules.maxJobTitleLength} characters`;
         }
 
-        // Job Description validation
         if (!jobDescription.trim()) {
             errors.jobDescription = "Job description is required";
         } else if (jobDescription.length < validationRules.minJobDescriptionLength) {
@@ -34,12 +32,10 @@ const useFormValidation = ({ jobTitle, jobDescription, companyName, rules = {} }
             errors.jobDescription = `Job description must be less than ${validationRules.maxJobDescriptionLength} characters`;
         }
 
-        // Always show warnings (they're helpful, not errors)
         if (jobDescription.length > validationRules.maxJobDescriptionLength * 0.9) {
             warnings.jobDescription = "Job description is approaching the character limit";
         }
 
-        // Company Name validation (optional)
         if (companyName && companyName.length > validationRules.maxCompanyNameLength) {
             errors.companyName = `Company name must be less than ${validationRules.maxCompanyNameLength} characters`;
         }
