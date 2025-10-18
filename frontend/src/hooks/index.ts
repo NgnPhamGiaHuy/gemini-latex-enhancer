@@ -2,7 +2,6 @@ export { default as useFileUpload } from "./useFileUpload";
 export { default as useCVEnhancement } from "./useCVEnhancement";
 export { default as useModelSelection } from "./useModelSelection";
 export { default as useClientSide } from "./useClientSide";
-export { default as useAIAnalysis } from "./useAIAnalysis";
 export { default as useFormValidation } from "./useFormValidation";
 export { default as useEnhancerWorkflow } from "./useEnhancerWorkflow";
 export { default as useEnhancerJobData } from "./useEnhancerJobData";

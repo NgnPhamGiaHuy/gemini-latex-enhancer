@@ -4,11 +4,10 @@ import { motion } from "framer-motion";
 
 import type { AlignStepProps } from "@/types";
 
-import AIAnalysis from "./ai-analysis";
 import JobDetailsForm from "./job-details-form";
 import { useCVEnhancement } from "@/hooks";
 
-const AlignStep = ({ step, summary, jobTitle, setJobTitle, jobDescription, setJobDescription, companyName, setCompanyName, sliceProjects, setSliceProjects, selectedModel, onEnhanceSuccess, onLoadingChange, sessionId, originalLatexContent, onBatchJobDetailsExtracted, onBatchEnhancementSuccess }: AlignStepProps) => {
+const AlignStep = ({ step, jobTitle, setJobTitle, jobDescription, setJobDescription, companyName, setCompanyName, sliceProjects, setSliceProjects, selectedModel, onEnhanceSuccess, onLoadingChange, sessionId, originalLatexContent, onBatchJobDetailsExtracted, onBatchEnhancementSuccess }: AlignStepProps) => {
     const { handleEnhancement, handleBatchEnhancement } = useCVEnhancement({ onEnhanceSuccess, onLoadingChange });
 
     const handleEnhance = () => {
@@ -21,8 +20,7 @@ const AlignStep = ({ step, summary, jobTitle, setJobTitle, jobDescription, setJo
 
     return (
         <motion.div key="align" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.4 }}>
-            <div className="grid lg:grid-cols-2 gap-8">
-                <AIAnalysis summary={summary} loading={false} />
+            <div className="max-w-2xl mx-auto">
                 <JobDetailsForm
                     jobTitle={jobTitle}
                     setJobTitle={setJobTitle}

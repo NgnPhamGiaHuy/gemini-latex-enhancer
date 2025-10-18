@@ -68,13 +68,11 @@ export interface EnhancerResultsActions {
 
 export interface EnhancerCVContentState {
     originalLatexContent: string;
-    summary: string;
     sections: import("@/lib/api").Section[];
 }
 
 export interface EnhancerCVContentActions {
     setOriginalLatexContent: (value: string) => void;
-    setSummary: (value: string) => void;
     setSections: (value: import("@/lib/api").Section[]) => void;
     resetCVContent: () => void;
 }
@@ -137,7 +135,6 @@ export interface UseModelSelectionReturn {
 
 export interface UploadData {
     sessionId: string;
-    summary: string;
     sections: import("@/lib/api").Section[];
     latexContent: string;
 }
@@ -146,15 +143,6 @@ export interface UseFileUploadProps {
     onUploadSuccess: (data: UploadData) => void;
     onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
     selectedModel?: string;
-}
-
-export interface FormattedAnalysis {
-    sections: Array<{
-        title: string;
-        content: string;
-        isHeader: boolean;
-    }>;
-    hasContent: boolean;
 }
 
 export interface JobDetailsFormProps {
@@ -173,7 +161,6 @@ export interface JobDetailsFormProps {
 
 export interface AlignStepProps {
     step: string;
-    summary: string;
     jobTitle: string;
     setJobTitle: (value: string) => void;
     jobDescription: string;
@@ -208,7 +195,7 @@ export interface DownloadStepProps {
 export interface UploadStepProps {
     step: string;
     selectedModel: string;
-    onUploadSuccess: (data: { sessionId: string; summary: string; sections: import("@/lib/api").Section[]; latexContent: string }) => void;
+    onUploadSuccess: (data: { sessionId: string; sections: import("@/lib/api").Section[]; latexContent: string }) => void;
     onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
     onModelChange: (modelId: string) => void;
 }
@@ -221,11 +208,6 @@ export interface ModelSelectionProps {
     error: string | null;
     onModelChange: (modelId: string) => void;
     className?: string;
-}
-
-export interface AIAnalysisProps {
-    summary: string;
-    loading: boolean;
 }
 
 export interface StepMeta {

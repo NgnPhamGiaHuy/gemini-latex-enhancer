@@ -14,7 +14,7 @@ import { useClientSide, useCVEnhancement, useEnhancerWorkflow, useEnhancerJobDat
 const CVEnhancer = () => {
     const isClient = useClientSide();
     const { step, sessionId, setStep, setSessionId, resetWorkflow } = useEnhancerWorkflow();
-    const { summary, originalLatexContent, setSummary, setSections, setOriginalLatexContent, resetCVContent } = useEnhancerCVContent();
+    const { originalLatexContent, setSections, setOriginalLatexContent, resetCVContent } = useEnhancerCVContent();
     const { jobTitle, jobDescription, companyName, inputMethod, originalJobFile, setJobTitle, setJobDescription, setCompanyName, setInputMethod, setOriginalJobFile, resetJobData } = useEnhancerJobData();
     const { selectedModel, sliceProjects, setSelectedModel, setSliceProjects, resetModelConfig } = useEnhancerModelConfig();
     const { generateResult, setGenerateResult, resetResults } = useEnhancerResults();
@@ -61,7 +61,6 @@ const CVEnhancer = () => {
                     selectedModel={selectedModel}
                     onUploadSuccess={(data) => {
                         setSessionId(data.sessionId);
-                        setSummary(data.summary);
                         setSections(data.sections);
                         setOriginalLatexContent(data.latexContent);
                         setStep("align");
@@ -72,7 +71,6 @@ const CVEnhancer = () => {
 
                 <AlignStep
                     step={step}
-                    summary={summary}
                     jobTitle={jobTitle}
                     setJobTitle={setJobTitle}
                     jobDescription={jobDescription}
@@ -115,7 +113,7 @@ const CVEnhancer = () => {
                         resetProgress();
                     }}
                     onBackToJobDetails={() => {
-                        // Keep uploaded CV and AI summary/sections, clear job-specific inputs and results
+                        // Keep uploaded CV and sections, clear job-specific inputs and results
                         resetResults();
                         resetProgress();
                         resetJobData();

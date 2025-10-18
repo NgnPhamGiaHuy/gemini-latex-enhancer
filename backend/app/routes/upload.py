@@ -17,15 +17,14 @@ logger = get_logger(__name__)
 
 @router.post("/upload")
 async def upload_cv(file: UploadFile, model_id: str = None):
-    """Upload a `.tex` CV, validate it, and return a structured summary.
+    """Upload a `.tex` CV, validate it, and return parsed sections.
 
     Args:
         file: Uploaded LaTeX file (.tex only).
         model_id: Optional AI model override.
 
     Returns:
-        Success response with AI-generated `summary`, parsed `sections`, and a
-        new `session_id` for subsequent enhancement.
+        Success response with parsed `sections` and a new `session_id` for subsequent enhancement.
 
     Raises:
         HTTPException: On validation or processing errors.
@@ -66,12 +65,6 @@ async def upload_cv(file: UploadFile, model_id: str = None):
         ai_service = AIService(model_id=model_id)
         logger.info("✅ AI service initialized")
 
-        # Generate summary
-        logger.info("Generating AI summary...")
-        summary = ai_service.summarize_cv(latex_content)
-        logger.info(f"✅ Summary generated, length: {len(summary)} characters")
-        logger.debug(f"Summary preview: {summary[:200]}...")
-
         # Generate session ID
         session_id = str(uuid.uuid4())
         logger.info(f"✅ Session ID generated: {session_id}")
@@ -89,7 +82,6 @@ async def upload_cv(file: UploadFile, model_id: str = None):
 
         response_data = {
             "session_id": session_id,
-            "summary": summary,
             "sections": sections,
         }
 
@@ -97,7 +89,7 @@ async def upload_cv(file: UploadFile, model_id: str = None):
         logger.info(f"Response data keys: {list(response_data.keys())}")
 
         return ResponseBuilder.success_response(
-            data=response_data, message="CV uploaded and analyzed successfully"
+            data=response_data, message="CV uploaded and processed successfully"
         )
 
     except HTTPException as e:

@@ -1,14 +1,13 @@
 """
-AI Service for CV summarization and enhancement using Google Gemini.
+AI Service for CV enhancement using Google Gemini.
 
 This module centralizes all interactions with the Gemini API so that:
 - Authentication and model selection are consistently handled in one place
 - Prompt construction is delegated to `app.prompts.PromptManager`
 - Responses are validated and normalized for downstream services (e.g., LaTeX)
 
-The service exposes two primary capabilities:
-1) summarize_cv: produce a recruiter-friendly text summary from LaTeX content
-2) enhance_cv: return a full, compilable LaTeX document tailored to a job
+The service exposes one primary capability:
+1) enhance_cv: return a full, compilable LaTeX document tailored to a job
 """
 
 import google.generativeai as genai
@@ -83,56 +82,6 @@ class AIService:
                 f"❌ Failed to initialize Gemini model '{selected_model}': {str(e)}"
             )
             raise
-
-    def summarize_cv(self, latex_content: str) -> str:
-        """Summarize a LaTeX CV into plain text.
-
-        Sends the raw LaTeX content to Gemini using a strict summarization
-        prompt and returns a concise, recruiter-oriented text summary.
-
-        Args:
-            latex_content: The original LaTeX document string.
-
-        Returns:
-            A plain-text summary string with consistent section headers.
-
-        Raises:
-            HTTPException: If the AI response is empty or any downstream error
-                occurs.
-        """
-        logger.info("=== CV SUMMARIZATION STARTED ===")
-        logger.info(f"LaTeX content length: {len(latex_content)} characters")
-        logger.debug(f"LaTeX content preview: {latex_content[:300]}...")
-
-        try:
-            prompt = PromptManager.get_summarization_prompt(latex_content)
-
-            logger.info(f"Prompt length: {len(prompt)} characters")
-            logger.debug(f"Prompt preview: {prompt[:200]}...")
-
-            logger.info("Sending request to Gemini API...")
-            response = self.model.generate_content(prompt)
-
-            if not response or not response.text:
-                logger.error("❌ Empty response from Gemini API")
-                raise HTTPException(
-                    status_code=500, detail="Empty response from AI service"
-                )
-
-            summary = response.text.strip()
-            logger.info(f"✅ Summary received, length: {len(summary)} characters")
-            logger.debug(f"Summary content: {summary}")
-
-            logger.info("=== CV SUMMARIZATION COMPLETED SUCCESSFULLY ===")
-            return summary
-
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.error(f"❌ CV summarization failed: {str(e)}", exc_info=True)
-            raise HTTPException(
-                status_code=500, detail=f"AI summarization failed: {str(e)}"
-            )
 
     def enhance_cv(
         self, latex_content: str, job_data: Dict[str, Any], slice_projects: bool = False

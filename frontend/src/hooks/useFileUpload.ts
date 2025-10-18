@@ -28,14 +28,12 @@ const useFileUpload = ({ onUploadSuccess, onLoadingChange, selectedModel }: UseF
 
                 console.log("State updated:", {
                     sessionId: res.session_id,
-                    summaryLength: res.summary?.length || 0,
                     sectionsCount: res.sections?.length || 0,
                     latexContentLength: fileContent.length,
                 });
 
                 onUploadSuccess({
                     sessionId: res.session_id,
-                    summary: res.summary,
                     sections: res.sections,
                     latexContent: fileContent,
                 });
