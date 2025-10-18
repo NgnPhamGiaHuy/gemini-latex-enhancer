@@ -104,7 +104,7 @@ const JobDetailsForm = ({ jobTitle, setJobTitle, jobDescription, setJobDescripti
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Job Description *</label>
                             <AppTooltip content="Paste the full description. The AI extracts keywords, skills, and responsibilities.">
-                                <Textarea placeholder="Paste the job description here..." value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} onBlur={() => handleFieldBlur("jobDescription")} className="resize-none h-40 overflow-y-auto" />
+                                <Textarea placeholder="Paste the job description here..." value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} onBlur={() => handleFieldBlur("jobDescription")} className="resize-none h-32 sm:h-40 overflow-y-auto" />
                             </AppTooltip>
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>

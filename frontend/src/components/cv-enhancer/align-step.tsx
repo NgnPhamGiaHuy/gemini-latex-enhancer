@@ -20,7 +20,7 @@ const AlignStep = ({ step, jobTitle, setJobTitle, jobDescription, setJobDescript
 
     return (
         <motion.div key="align" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.4 }}>
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto px-3 sm:px-0">
                 <JobDetailsForm
                     jobTitle={jobTitle}
                     setJobTitle={setJobTitle}

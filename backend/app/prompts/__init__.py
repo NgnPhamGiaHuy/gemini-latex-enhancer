@@ -39,9 +39,9 @@ class PromptManager:
             COMMON_PROMPT_TEMPLATE,
             ADVANCED_QUALITY_ASSURANCE,
             PERSONAL_PROJECTS_SLICING,
-            FACTUAL_INTEGRITY_RULES
+            FACTUAL_INTEGRITY_RULES,
         )
-        
+
         if slice_projects:
             return CV_ENHANCEMENT_PROMPT_WITH_SLICING.format(
                 latex_content=latex_content,

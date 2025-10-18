@@ -80,7 +80,7 @@ const ModelSelection = ({ models, selectedModel, defaultModel, isLoading, error,
         return (
             <Card className={cn("transition-all duration-300", className)}>
                 <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl">
                         <Brain className="h-5 w-5 text-primary" />
                         AI Model Selection
                     </CardTitle>
@@ -99,7 +99,7 @@ const ModelSelection = ({ models, selectedModel, defaultModel, isLoading, error,
         return (
             <Card className={cn("transition-all duration-300", className)}>
                 <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl">
                         <Brain className="h-5 w-5 text-primary" />
                         AI Model Selection
                     </CardTitle>
@@ -121,7 +121,7 @@ const ModelSelection = ({ models, selectedModel, defaultModel, isLoading, error,
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Settings className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-lg">AI Model</CardTitle>
+                        <CardTitle className="text-base sm:text-lg lg:text-xl">AI Model</CardTitle>
                         <Badge variant="outline" className="text-xs">
                             {selectedModelData?.name || "Default"}
                         </Badge>

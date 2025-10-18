@@ -119,4 +119,103 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Responsive Typography */
+    .text-responsive-xs {
+        font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    }
+
+    .text-responsive-sm {
+        font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+    }
+
+    .text-responsive-base {
+        font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    }
+
+    .text-responsive-lg {
+        font-size: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+    }
+
+    .text-responsive-xl {
+        font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+    }
+
+    .text-responsive-2xl {
+        font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+    }
+
+    .text-responsive-3xl {
+        font-size: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+    }
+
+    .text-responsive-4xl {
+        font-size: clamp(2.25rem, 1.8rem + 2.25vw, 3rem);
+    }
+
+    /* Responsive Spacing */
+    .space-responsive-xs {
+        gap: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+    }
+
+    .space-responsive-sm {
+        gap: clamp(0.375rem, 0.3rem + 0.375vw, 0.75rem);
+    }
+
+    .space-responsive-md {
+        gap: clamp(0.5rem, 0.4rem + 0.5vw, 1rem);
+    }
+
+    .space-responsive-lg {
+        gap: clamp(0.75rem, 0.6rem + 0.75vw, 1.5rem);
+    }
+
+    .space-responsive-xl {
+        gap: clamp(1rem, 0.8rem + 1vw, 2rem);
+    }
+
+    /* Mobile-optimized Card Padding */
+    .card-mobile {
+        padding: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+    }
+
+    /* Mobile-optimized Container Padding */
+    .container-mobile {
+        padding-left: clamp(0.75rem, 0.5rem + 1vw, 2rem);
+        padding-right: clamp(0.75rem, 0.5rem + 1vw, 2rem);
+    }
+
+    /* Focus Management */
+    .focus-visible {
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    }
+
+    /* Smooth Scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+
+    /* High Contrast Support */
+    @media (prefers-contrast: high) {
+        .border-muted-foreground\/25 {
+            border-color: currentColor;
+        }
+
+        .bg-muted\/10 {
+            background-color: transparent;
+            border: 2px solid currentColor;
+        }
+    }
 }

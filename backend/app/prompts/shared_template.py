@@ -41,7 +41,7 @@ COMMON_SPACING_RULES = """
 COMMON_LIST_FORMATTING = """
 **List Formatting Requirements (CRITICAL):**
 - Each list section (Experience, Projects, Skills, etc.) must contain exactly 4-5 items
-- Each list item must be 25-30 words (approximately 150-200 characters without spaces)
+- Each list item must be 35-40 words (approximately 200-250 characters without spaces)
 - Prioritize the most relevant and impactful items for the target job
 - If more than 5 items exist, select the top 5 most job-relevant ones
 - If fewer than 4 items exist, expand with additional relevant achievements or skills
@@ -58,6 +58,7 @@ COMMON_ENHANCEMENT_STRATEGY = """
 - Remove outdated or irrelevant information
 - Consolidate similar experiences
 - Use industry terminology from job posting
+- **KEYWORD HIGHLIGHTING**: Use \\textbf{{}} to bold important keywords, skills, technologies, and achievements that match the job requirements
 """
 
 # Common experience duration integrity rules
@@ -91,6 +92,12 @@ Before outputting the final LaTeX code, you MUST sanitize all text content to pr
    - Code snippets, framework names → Use \\texttt{{}} or \\verb|content|
    - Technical terms with special chars → Escape appropriately
    - **IMPORTANT**: Do NOT wrap programming language names (JavaScript, Python, React, etc.) in \\texttt{{}} unless they contain special characters that need escaping
+   - **KEYWORD HIGHLIGHTING**: Use \\textbf{{keyword}} to bold important terms like:
+     * Key technologies and frameworks in experience/project descriptions
+     * Important achievements and metrics
+     * Action verbs and industry terminology
+     * Company names and project titles when relevant
+     * **NOTE**: Do NOT use bold in Skills section - keep it clean and simple
 
 3. **Validation Checklist (MANDATORY):**
    - NO unescaped & symbols in text fields
@@ -117,6 +124,34 @@ COMMON_QUALITY_GUIDELINES = """
 - Highlight transferable skills and achievements
 - Remove filler words and unnecessary details
 - Preserve document readability and visual hierarchy
+"""
+
+# Keyword highlighting rules
+COMMON_KEYWORD_HIGHLIGHTING = """
+**Keyword Highlighting Rules (CRITICAL):**
+Use \\textbf{{}} to bold important keywords that match the job requirements:
+
+1. **Key Achievements**: Bold quantifiable results and metrics
+   - Examples: \\textbf{{increased efficiency by 25%}}, \\textbf{{reduced load time by 40%}}, \\textbf{{managed team of 5}}
+
+2. **Industry Terms**: Bold relevant industry terminology and methodologies
+   - Examples: \\textbf{{Agile}}, \\textbf{{Scrum}}, \\textbf{{CI/CD}}, \\textbf{{Microservices}}
+
+3. **Action Verbs**: Bold strong action verbs that demonstrate impact
+   - Examples: \\textbf{{Developed}}, \\textbf{{Implemented}}, \\textbf{{Optimized}}, \\textbf{{Led}}
+
+4. **Company/Project Names**: Bold when they add credibility or relevance
+   - Examples: \\textbf{{Google Cloud Platform}}, \\textbf{{Netflix Architecture}}
+
+5. **Technical Terms in Context**: Bold programming languages, frameworks, and tools when mentioned in experience/project descriptions
+   - Examples: \\textbf{{JavaScript}}, \\textbf{{React.js}}, \\textbf{{Python}}, \\textbf{{Docker}}, \\textbf{{AWS}}
+
+**Guidelines:**
+- Only bold terms that are directly relevant to the target job
+- Don't overuse bold formatting - aim for 3-5 bold terms per bullet point
+- Ensure bold terms enhance readability, not distract from content
+- Match the terminology used in the job description exactly
+- **IMPORTANT**: Do NOT use bold formatting in the Skills section - keep it clean and simple
 """
 
 # Advanced quality assurance (for advanced prompts)
@@ -178,6 +213,8 @@ COMMON_PROMPT_TEMPLATE = f"""
 {COMMON_LIST_FORMATTING}
 
 {COMMON_ENHANCEMENT_STRATEGY}
+
+{COMMON_KEYWORD_HIGHLIGHTING}
 
 {COMMON_QUALITY_GUIDELINES}
 

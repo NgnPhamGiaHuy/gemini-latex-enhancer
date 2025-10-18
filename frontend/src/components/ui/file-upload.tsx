@@ -9,7 +9,7 @@ export const FileUploadZone = ({ onDrop, isLoading, className, accept = ".tex", 
     return (
         <motion.div className={cn("relative", className)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div
-                className={cn("group relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300", "hover:border-primary hover:bg-primary/5 cursor-pointer", "border-muted-foreground/25 bg-muted/10", {
+                className={cn("group relative border-2 border-dashed rounded-xl p-4 sm:p-8 lg:p-12 text-center transition-all duration-300", "hover:border-primary hover:bg-primary/5 cursor-pointer", "border-muted-foreground/25 bg-muted/10", {
                     "pointer-events-none opacity-50": isLoading,
                 })}
                 onDrop={(e) => {
@@ -31,28 +31,44 @@ export const FileUploadZone = ({ onDrop, isLoading, className, accept = ".tex", 
                         input.click();
                     }
                 }}
+                role="button"
+                tabIndex={0}
+                aria-label={title}
+                onKeyDown={(e) => {
+                    if ((e.key === "Enter" || e.key === " ") && !isLoading) {
+                        e.preventDefault();
+                        const input = document.createElement("input");
+                        input.type = "file";
+                        input.accept = accept;
+                        input.onchange = (e) => {
+                            const files = (e.target as HTMLInputElement).files;
+                            if (files) onDrop(Array.from(files));
+                        };
+                        input.click();
+                    }
+                }}
             >
-                <motion.div className="flex flex-col items-center gap-4" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
+                <motion.div className="flex flex-col items-center gap-3 sm:gap-4" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
                     <div className="relative">
-                        <Upload className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <Upload className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
 
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-                        <p className="text-sm text-muted-foreground max-w-md">{description}</p>
+                    <div className="space-y-1 sm:space-y-2">
+                        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">{title}</h3>
+                        <p className="text-xs sm:text-sm lg:text-base text-muted-foreground max-w-md px-2">{description}</p>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                         <Sparkles className="h-3 w-3" />
                         <span>AI-powered CV optimization</span>
                     </div>
                 </motion.div>
 
                 {isLoading && (
-                    <motion.div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <motion.div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} role="status" aria-label="Processing file">
                         <div className="flex flex-col items-center gap-2">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
-                            <p className="text-sm text-muted-foreground">{processingText}</p>
+                            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-2 border-primary border-t-transparent" />
+                            <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">{processingText}</p>
                         </div>
                     </motion.div>
                 )}

@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "CV-Align AI",
+    title: "Gemini LaTeX Enhancer – AI‑assisted CV enhancement with LaTeX outputs",
     description: "Transform your LaTeX CV with AI-powered optimization tailored to any job description",
 };
 
