@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 
-import type { ValidationRules, ValidationState, UseFormValidationProps } from "@/types";
+import type {
+    ValidationRules,
+    ValidationState,
+    UseFormValidationProps,
+} from "@/types";
 
 const DEFAULT_RULES: ValidationRules = {
     maxJobTitleLength: 200,
@@ -10,7 +14,12 @@ const DEFAULT_RULES: ValidationRules = {
     minJobDescriptionLength: 10,
 };
 
-const useFormValidation = ({ jobTitle, jobDescription, companyName, rules = {} }: UseFormValidationProps): ValidationState => {
+const useFormValidation = ({
+    jobTitle,
+    jobDescription,
+    companyName,
+    rules = {},
+}: UseFormValidationProps): ValidationState => {
     const validationState = useMemo(() => {
         const validationRules = { ...DEFAULT_RULES, ...rules };
         const errors: ValidationState["errors"] = {};
@@ -26,17 +35,28 @@ const useFormValidation = ({ jobTitle, jobDescription, companyName, rules = {} }
 
         if (!jobDescription.trim()) {
             errors.jobDescription = "Job description is required";
-        } else if (jobDescription.length < validationRules.minJobDescriptionLength) {
+        } else if (
+            jobDescription.length < validationRules.minJobDescriptionLength
+        ) {
             errors.jobDescription = `Job description must be at least ${validationRules.minJobDescriptionLength} characters`;
-        } else if (jobDescription.length > validationRules.maxJobDescriptionLength) {
+        } else if (
+            jobDescription.length > validationRules.maxJobDescriptionLength
+        ) {
             errors.jobDescription = `Job description must be less than ${validationRules.maxJobDescriptionLength} characters`;
         }
 
-        if (jobDescription.length > validationRules.maxJobDescriptionLength * 0.9) {
-            warnings.jobDescription = "Job description is approaching the character limit";
+        if (
+            jobDescription.length >
+            validationRules.maxJobDescriptionLength * 0.9
+        ) {
+            warnings.jobDescription =
+                "Job description is approaching the character limit";
         }
 
-        if (companyName && companyName.length > validationRules.maxCompanyNameLength) {
+        if (
+            companyName &&
+            companyName.length > validationRules.maxCompanyNameLength
+        ) {
             errors.companyName = `Company name must be less than ${validationRules.maxCompanyNameLength} characters`;
         }
 

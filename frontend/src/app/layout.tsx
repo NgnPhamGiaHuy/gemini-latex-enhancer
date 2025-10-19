@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AppTooltipProvider } from "@/components/ui/tooltip";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
+    variable: "--font-space-grotesk",
     subsets: ["latin"],
+    display: "swap",
+    weight: ["400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
+const plexMono = IBM_Plex_Mono({
+    variable: "--font-plex-mono",
     subsets: ["latin"],
+    display: "swap",
+    weight: ["400", "600"],
 });
 
 export const metadata: Metadata = {
     title: "Gemini LaTeX Enhancer – AI‑assisted CV enhancement with LaTeX outputs",
-    description: "Transform your LaTeX CV with AI-powered optimization tailored to any job description",
+    description:
+        "Transform your LaTeX CV with AI-powered optimization tailored to any job description",
 };
 
 export default function RootLayout({
@@ -28,7 +33,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body
+                className={`${spaceGrotesk.variable} ${plexMono.variable} antialiased`}
+            >
                 <AppTooltipProvider>{children}</AppTooltipProvider>
                 <Toaster />
             </body>

@@ -11,18 +11,41 @@ import { FileUploadZone } from "@/components/ui/file-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFileUpload, useModelSelection } from "@/hooks";
 
-const UploadStep = ({ step, selectedModel, onUploadSuccess, onLoadingChange, onModelChange }: UploadStepProps) => {
+const UploadStep = ({
+    step,
+    selectedModel,
+    onUploadSuccess,
+    onLoadingChange,
+    onModelChange,
+}: UploadStepProps) => {
     const { models, isLoading, error } = useModelSelection({ onModelChange });
 
-    const { handleFileUpload } = useFileUpload({ onUploadSuccess, onLoadingChange, selectedModel });
+    const { handleFileUpload } = useFileUpload({
+        onUploadSuccess,
+        onLoadingChange,
+        selectedModel,
+    });
 
     if (step !== "upload") return null;
 
     return (
-        <motion.div key="upload" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.4 }}>
+        <motion.div
+            key="upload"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="max-w-4xl mx-auto space-y-3 sm:space-y-6">
                 {/* Model Selection */}
-                <ModelSelection models={models} selectedModel={selectedModel} defaultModel="gemini-2.5-flash" isLoading={isLoading} error={error} onModelChange={onModelChange} />
+                <ModelSelection
+                    models={models}
+                    selectedModel={selectedModel}
+                    defaultModel="gemini-2.5-flash"
+                    isLoading={isLoading}
+                    error={error}
+                    onModelChange={onModelChange}
+                />
 
                 {/* File Upload */}
                 <Card>
@@ -31,12 +54,17 @@ const UploadStep = ({ step, selectedModel, onUploadSuccess, onLoadingChange, onM
                             <Upload className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                             Upload Your CV
                         </CardTitle>
-                        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">Start by uploading your LaTeX CV file</p>
+                        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">
+                            Start by uploading your LaTeX CV file
+                        </p>
                     </CardHeader>
                     <CardContent>
                         <AppTooltip content="We support .tex files. Your CV is processed locally before enhancement.">
                             <div>
-                                <FileUploadZone onDrop={handleFileUpload} isLoading={false} />
+                                <FileUploadZone
+                                    onDrop={handleFileUpload}
+                                    isLoading={false}
+                                />
                             </div>
                         </AppTooltip>
                     </CardContent>

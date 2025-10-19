@@ -2,16 +2,20 @@ import { useState, useCallback } from "react";
 
 import type { EnhancerProgressState, EnhancerProgressActions } from "@/types";
 
-const useEnhancerProgress = (): EnhancerProgressState & EnhancerProgressActions => {
+const useEnhancerProgress = (): EnhancerProgressState &
+    EnhancerProgressActions => {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [progressMessage, setProgressMessage] = useState("");
 
-    const handleLoadingChange = useCallback((isLoading: boolean, progressValue: number, message: string = "") => {
-        setLoading(isLoading);
-        setProgress(progressValue);
-        setProgressMessage(message);
-    }, []);
+    const handleLoadingChange = useCallback(
+        (isLoading: boolean, progressValue: number, message: string = "") => {
+            setLoading(isLoading);
+            setProgress(progressValue);
+            setProgressMessage(message);
+        },
+        []
+    );
 
     const resetProgress = () => {
         setLoading(false);

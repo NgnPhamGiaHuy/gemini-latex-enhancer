@@ -5,7 +5,11 @@ import type { UseFileUploadProps } from "@/types";
 
 import { uploadTex } from "@/lib/api";
 
-const useFileUpload = ({ onUploadSuccess, onLoadingChange, selectedModel }: UseFileUploadProps) => {
+const useFileUpload = ({
+    onUploadSuccess,
+    onLoadingChange,
+    selectedModel,
+}: UseFileUploadProps) => {
     const handleFileUpload = useCallback(
         async (acceptedFiles: File[]) => {
             if (!acceptedFiles.length) return;

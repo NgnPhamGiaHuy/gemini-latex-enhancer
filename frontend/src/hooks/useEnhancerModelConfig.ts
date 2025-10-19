@@ -1,10 +1,14 @@
 import { useState } from "react";
 
-import type { EnhancerModelConfigState, EnhancerModelConfigActions } from "@/types";
+import type {
+    EnhancerModelConfigState,
+    EnhancerModelConfigActions,
+} from "@/types";
 
 const DEFAULT_MODEL = "gemini-2.5-flash";
 
-const useEnhancerModelConfig = (): EnhancerModelConfigState & EnhancerModelConfigActions => {
+const useEnhancerModelConfig = (): EnhancerModelConfigState &
+    EnhancerModelConfigActions => {
     const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
     const [sliceProjects, setSliceProjects] = useState<boolean>(true);
 

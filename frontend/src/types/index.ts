@@ -39,7 +39,11 @@ export interface EnhancerProgressActions {
     setLoading: (value: boolean) => void;
     setProgress: (value: number) => void;
     setProgressMessage: (value: string) => void;
-    handleLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    handleLoadingChange: (
+        loading: boolean,
+        progress: number,
+        message?: string
+    ) => void;
     resetProgress: () => void;
 }
 
@@ -89,7 +93,11 @@ export interface EnhancementParams {
 
 export interface UseCVEnhancementProps {
     onEnhanceSuccess: (result: { tex?: string; pdf?: string | null }) => void;
-    onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    onLoadingChange: (
+        loading: boolean,
+        progress: number,
+        message?: string
+    ) => void;
 }
 
 export interface ValidationRules {
@@ -141,7 +149,11 @@ export interface UploadData {
 
 export interface UseFileUploadProps {
     onUploadSuccess: (data: UploadData) => void;
-    onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    onLoadingChange: (
+        loading: boolean,
+        progress: number,
+        message?: string
+    ) => void;
     selectedModel?: string;
 }
 
@@ -171,11 +183,22 @@ export interface AlignStepProps {
     setSliceProjects: (value: boolean) => void;
     selectedModel: string;
     onEnhanceSuccess: (result: { tex?: string; pdf?: string | null }) => void;
-    onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    onLoadingChange: (
+        loading: boolean,
+        progress: number,
+        message?: string
+    ) => void;
     sessionId: string | null;
     originalLatexContent: string;
-    onBatchJobDetailsExtracted?: (jobDetails: { jobTitle: string; jobDescription: string; companyName: string }) => void;
-    onBatchEnhancementSuccess?: (result: { tex?: string; pdf?: string | null }, jobFile: File) => void;
+    onBatchJobDetailsExtracted?: (jobDetails: {
+        jobTitle: string;
+        jobDescription: string;
+        companyName: string;
+    }) => void;
+    onBatchEnhancementSuccess?: (
+        result: { tex?: string; pdf?: string | null },
+        jobFile: File
+    ) => void;
 }
 
 export interface DownloadStepProps {
@@ -195,8 +218,16 @@ export interface DownloadStepProps {
 export interface UploadStepProps {
     step: string;
     selectedModel: string;
-    onUploadSuccess: (data: { sessionId: string; sections: import("@/lib/api").Section[]; latexContent: string }) => void;
-    onLoadingChange: (loading: boolean, progress: number, message?: string) => void;
+    onUploadSuccess: (data: {
+        sessionId: string;
+        sections: import("@/lib/api").Section[];
+        latexContent: string;
+    }) => void;
+    onLoadingChange: (
+        loading: boolean,
+        progress: number,
+        message?: string
+    ) => void;
     onModelChange: (modelId: string) => void;
 }
 
@@ -240,7 +271,10 @@ export interface FullScreenProgressProps {
     subtitle?: string;
 }
 
-export type FullScreenProgressMinimalProps = Omit<FullScreenProgressProps, "title" | "subtitle">;
+export type FullScreenProgressMinimalProps = Omit<
+    FullScreenProgressProps,
+    "title" | "subtitle"
+>;
 
 export interface LoadingSpinnerProps {
     size?: "sm" | "md" | "lg";

@@ -1,8 +1,13 @@
 import { useState } from "react";
 
-import type { Step, EnhancerWorkflowState, EnhancerWorkflowActions } from "@/types";
+import type {
+    Step,
+    EnhancerWorkflowState,
+    EnhancerWorkflowActions,
+} from "@/types";
 
-const useEnhancerWorkflow = (): EnhancerWorkflowState & EnhancerWorkflowActions => {
+const useEnhancerWorkflow = (): EnhancerWorkflowState &
+    EnhancerWorkflowActions => {
     const [step, setStep] = useState<Step>("upload");
     const [sessionId, setSessionId] = useState<string | null>(null);
 

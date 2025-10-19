@@ -1,14 +1,30 @@
 import { toast } from "sonner";
 import { useCallback } from "react";
 
-import { alignSections, alignSectionsBatch, BatchAlignResponse, fetchProgress } from "@/lib/api";
+import {
+    alignSections,
+    alignSectionsBatch,
+    BatchAlignResponse,
+    fetchProgress,
+} from "@/lib/api";
 
 import type { EnhancementParams, UseCVEnhancementProps } from "@/types";
 
-const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancementProps) => {
+const useCVEnhancement = ({
+    onEnhanceSuccess,
+    onLoadingChange,
+}: UseCVEnhancementProps) => {
     const handleEnhancement = useCallback(
         async (params: EnhancementParams) => {
-            const { sessionId, jobTitle, jobDescription, companyName, originalLatexContent, modelId, sliceProjects } = params;
+            const {
+                sessionId,
+                jobTitle,
+                jobDescription,
+                companyName,
+                originalLatexContent,
+                modelId,
+                sliceProjects,
+            } = params;
 
             if (!sessionId) return;
 
@@ -61,8 +77,28 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
     return {
         handleEnhancement,
         handleBatchEnhancement: useCallback(
-            async (params: { sessionId: string; latexContent: string; jobFile: File; modelId?: string; sliceProjects?: boolean; onProgress?: (current: number, total: number) => void; onJobDetailsExtracted?: (jobDetails: { jobTitle: string; jobDescription: string; companyName: string }) => void }) => {
-                const { sessionId, latexContent, jobFile, modelId, sliceProjects, onProgress, onJobDetailsExtracted } = params;
+            async (params: {
+                sessionId: string;
+                latexContent: string;
+                jobFile: File;
+                modelId?: string;
+                sliceProjects?: boolean;
+                onProgress?: (current: number, total: number) => void;
+                onJobDetailsExtracted?: (jobDetails: {
+                    jobTitle: string;
+                    jobDescription: string;
+                    companyName: string;
+                }) => void;
+            }) => {
+                const {
+                    sessionId,
+                    latexContent,
+                    jobFile,
+                    modelId,
+                    sliceProjects,
+                    onProgress,
+                    onJobDetailsExtracted,
+                } = params;
                 if (!sessionId) return;
 
                 onLoadingChange(true, 10, "Preparing batch enhancement...");
@@ -70,15 +106,28 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
                     // First, preview the file to extract job details for regeneration
                     if (onJobDetailsExtracted) {
                         try {
-                            const preview = await import("@/lib/api").then((m) => m.previewFile(jobFile));
-                            if (preview.headers && preview.rows && preview.rows.length > 0) {
-                                const headersLower = preview.headers.map((h) => h.toLowerCase());
+                            const preview = await import("@/lib/api").then(
+                                (m) => m.previewFile(jobFile)
+                            );
+                            if (
+                                preview.headers &&
+                                preview.rows &&
+                                preview.rows.length > 0
+                            ) {
+                                const headersLower = preview.headers.map((h) =>
+                                    h.toLowerCase()
+                                );
 
                                 // Find job title field
                                 let jobTitleField = "";
                                 for (const header of preview.headers) {
                                     const headerLower = header.toLowerCase();
-                                    if (headerLower.includes("title") || headerLower.includes("position") || headerLower.includes("role") || headerLower.includes("job")) {
+                                    if (
+                                        headerLower.includes("title") ||
+                                        headerLower.includes("position") ||
+                                        headerLower.includes("role") ||
+                                        headerLower.includes("job")
+                                    ) {
                                         jobTitleField = header;
                                         break;
                                     }
@@ -88,7 +137,14 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
                                 let jobDescField = "";
                                 for (const header of preview.headers) {
                                     const headerLower = header.toLowerCase();
-                                    if (headerLower.includes("description") || headerLower.includes("desc") || headerLower.includes("responsibilities") || headerLower.includes("duties")) {
+                                    if (
+                                        headerLower.includes("description") ||
+                                        headerLower.includes("desc") ||
+                                        headerLower.includes(
+                                            "responsibilities"
+                                        ) ||
+                                        headerLower.includes("duties")
+                                    ) {
                                         jobDescField = header;
                                         break;
                                     }
@@ -98,7 +154,12 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
                                 let companyField = "";
                                 for (const header of preview.headers) {
                                     const headerLower = header.toLowerCase();
-                                    if (headerLower.includes("company") || headerLower.includes("employer") || headerLower.includes("organization") || headerLower.includes("firm")) {
+                                    if (
+                                        headerLower.includes("company") ||
+                                        headerLower.includes("employer") ||
+                                        headerLower.includes("organization") ||
+                                        headerLower.includes("firm")
+                                    ) {
                                         companyField = header;
                                         break;
                                     }
@@ -106,20 +167,35 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
 
                                 // Extract first job's details
                                 const firstRow = preview.rows[0];
-                                const jobTitleIndex = preview.headers.indexOf(jobTitleField);
-                                const jobDescIndex = preview.headers.indexOf(jobDescField);
-                                const companyIndex = preview.headers.indexOf(companyField);
+                                const jobTitleIndex =
+                                    preview.headers.indexOf(jobTitleField);
+                                const jobDescIndex =
+                                    preview.headers.indexOf(jobDescField);
+                                const companyIndex =
+                                    preview.headers.indexOf(companyField);
 
                                 const jobDetails = {
-                                    jobTitle: jobTitleIndex >= 0 ? firstRow[jobTitleIndex] || "" : "",
-                                    jobDescription: jobDescIndex >= 0 ? firstRow[jobDescIndex] || "" : "",
-                                    companyName: companyIndex >= 0 ? firstRow[companyIndex] || "" : "",
+                                    jobTitle:
+                                        jobTitleIndex >= 0
+                                            ? firstRow[jobTitleIndex] || ""
+                                            : "",
+                                    jobDescription:
+                                        jobDescIndex >= 0
+                                            ? firstRow[jobDescIndex] || ""
+                                            : "",
+                                    companyName:
+                                        companyIndex >= 0
+                                            ? firstRow[companyIndex] || ""
+                                            : "",
                                 };
 
                                 onJobDetailsExtracted(jobDetails);
                             }
                         } catch (e) {
-                            console.warn("Failed to extract job details for regeneration:", e);
+                            console.warn(
+                                "Failed to extract job details for regeneration:",
+                                e
+                            );
                         }
                     }
 
@@ -141,9 +217,14 @@ const useCVEnhancement = ({ onEnhanceSuccess, onLoadingChange }: UseCVEnhancemen
                         try {
                             const p = await fetchProgress(sessionId);
                             if (onProgress) onProgress(p.current, p.total);
-                            const message = p.message || `Processing ${p.current} of ${p.total}`;
+                            const message =
+                                p.message ||
+                                `Processing ${p.current} of ${p.total}`;
                             // Ensure we never regress; cap at 98% until completion
-                            const safePercent = Math.max(15, Math.min(98, p.percent));
+                            const safePercent = Math.max(
+                                15,
+                                Math.min(98, p.percent)
+                            );
                             onLoadingChange(true, safePercent, message);
                             if (p.status === "completed") {
                                 done = true;
