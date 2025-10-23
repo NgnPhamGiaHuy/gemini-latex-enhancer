@@ -83,6 +83,7 @@ async def upload_cv(file: UploadFile, model_id: str = None):
         response_data = {
             "session_id": session_id,
             "sections": sections,
+            "original_filename": file.filename,
         }
 
         logger.info(f"=== UPLOAD REQUEST COMPLETED SUCCESSFULLY ===")

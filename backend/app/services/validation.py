@@ -102,7 +102,8 @@ class ValidationService:
     def sanitize_input(text: str) -> str:
         """Sanitize arbitrary input for safe logging/storage.
 
-        Removes a few risky characters and truncates to a maximum length.
+        Removes potentially dangerous characters and truncates to a maximum length.
+        Enhanced to handle more edge cases and provide better security.
 
         Args:
             text: Untrusted input string.
@@ -113,11 +114,30 @@ class ValidationService:
         if not text:
             return ""
 
+        # Remove potentially dangerous characters and patterns
+        # Remove HTML/XML tags
+        text = re.sub(r"<[^>]+>", "", text)
+
+        # Remove script patterns
+        text = re.sub(
+            r"<script[^>]*>.*?</script>", "", text, flags=re.IGNORECASE | re.DOTALL
+        )
+
         # Remove potentially dangerous characters
         text = re.sub(r'[<>"\']', "", text)
+
+        # Remove control characters except newlines and tabs
+        text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
+
+        # Remove excessive whitespace
+        text = re.sub(r"\s+", " ", text)
 
         # Limit length
         if len(text) > 10000:
             text = text[:10000]
+            # Try to cut at word boundary
+            last_space = text.rfind(" ")
+            if last_space > 8000:  # Only if we don't lose too much content
+                text = text[:last_space]
 
         return text.strip()

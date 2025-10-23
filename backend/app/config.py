@@ -37,7 +37,11 @@ class Settings:
     LATEX_TIMEOUT: int = 30  # seconds
 
     # CORS Configuration
-    ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    ALLOWED_ORIGINS: list = (
+        os.getenv("ALLOWED_ORIGINS", "").split(",")
+        if os.getenv("ALLOWED_ORIGINS")
+        else ["http://localhost:3000", "http://127.0.0.1:3000"]
+    )
 
 
 settings = Settings()

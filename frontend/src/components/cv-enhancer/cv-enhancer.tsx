@@ -30,8 +30,11 @@ const CVEnhancer = () => {
         useEnhancerWorkflow();
     const {
         originalLatexContent,
+        sections,
+        originalFilename,
         setSections,
         setOriginalLatexContent,
+        setOriginalFilename,
         resetCVContent,
     } = useEnhancerCVContent();
     const {
@@ -133,6 +136,7 @@ const CVEnhancer = () => {
                             setSessionId(data.sessionId);
                             setSections(data.sections);
                             setOriginalLatexContent(data.latexContent);
+                            setOriginalFilename(data.originalFilename);
                             setStep("align");
                         }}
                         onLoadingChange={handleLoadingChange}
@@ -158,6 +162,7 @@ const CVEnhancer = () => {
                         onLoadingChange={handleLoadingChange}
                         sessionId={sessionId}
                         originalLatexContent={originalLatexContent}
+                        originalFilename={originalFilename}
                         onBatchJobDetailsExtracted={(jobDetails) => {
                             setJobTitle(jobDetails.jobTitle);
                             setJobDescription(jobDetails.jobDescription);
@@ -199,6 +204,7 @@ const CVEnhancer = () => {
                                 jobDescription,
                                 companyName,
                                 originalLatexContent,
+                                originalFilename,
                                 modelId: selectedModel,
                                 sliceProjects,
                             });
@@ -208,6 +214,7 @@ const CVEnhancer = () => {
                             await regenerateBatchEnhancement({
                                 sessionId,
                                 latexContent: originalLatexContent,
+                                originalFilename,
                                 jobFile: originalJobFile,
                                 modelId: selectedModel,
                                 sliceProjects,

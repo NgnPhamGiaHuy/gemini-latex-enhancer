@@ -9,154 +9,126 @@ prompt variants. This centralizes maintenance and ensures consistency across:
 
 All common sections are defined as constants that can be imported and injected
 into individual prompt variants.
+
+Version: 2.0
+Last Updated: 2025-10-24
 """
 
-# Common critical rules that apply to all prompts
-COMMON_CRITICAL_RULES = """
-CRITICAL RULES:
-- Output ONLY pure LaTeX code - NO markdown formatting
-- Do NOT wrap output in ```latex``` code blocks
+# Core output requirements - highest priority
+CORE_OUTPUT_REQUIREMENTS = """
+CRITICAL OUTPUT REQUIREMENTS:
+- Output ONLY pure LaTeX code - NO markdown formatting or code blocks
+- Document must start with \\documentclass and end with \\end{{document}}
 - Do NOT include explanations, comments, or metadata
-- Output must start with \\documentclass and end with \\end{{document}}
-- Preserve all formatting and structure
-- Enhance content to match job requirements while maintaining authenticity
-- Keep the same LaTeX document structure and packages
-- **CRITICAL: DO NOT remove any \\vspace{{}} commands from the original CV**
-- **CRITICAL: Preserve original font formatting - do NOT add unnecessary font commands like \\texttt{{}} to normal text**
+- Preserve original LaTeX structure and packages
+- Maintain authenticity while enhancing for job relevance
 """
 
-# Common spacing and formatting rules
-COMMON_SPACING_RULES = """
-**Spacing & Formatting Rules - CRITICAL:**
-- PRESERVE ALL \\vspace{{}} commands exactly as they appear in the original CV
-- DO NOT remove \\vspace{{{{spacing}}}} or any other spacing commands
-- Maintain proper spacing between items within sections
-- Keep consistent formatting and structure
-- Only remove excessive spacing, not necessary spacing for readability
-- Ensure sections are visually separated and easy to read
-- Spacing commands like \\vspace{{{{spacing}}}} are ESSENTIAL for proper document layout
+# Spacing preservation rules
+SPACING_PRESERVATION_RULES = """
+IMPORTANT SPACING RULES:
+- PRESERVE ALL \\vspace{{}} commands from the original CV
+- Maintain proper section separation and readability
+- Keep consistent formatting structure
+- Only remove excessive spacing, not essential spacing
 """
 
-# Common list formatting requirements
-COMMON_LIST_FORMATTING = """
-**List Formatting Requirements (CRITICAL):**
-- Each list section (Experience, Projects, Skills, etc.) must contain exactly 4-5 items
-- Each list item must be 35-40 words (approximately 200-250 characters without spaces)
-- Prioritize the most relevant and impactful items for the target job
-- If more than 5 items exist, select the top 5 most job-relevant ones
-- If fewer than 4 items exist, expand with additional relevant achievements or skills
-- Each item should be concise, specific, and quantifiable when possible
-- Use action verbs and include metrics/numbers where applicable
+# Content structure guidelines
+CONTENT_STRUCTURE_GUIDELINES = """
+CONTENT STRUCTURE:
+- Each section: 3-5 items maximum (prioritize most relevant)
+- Each item: more than 30-40 words (180-240 characters)
+- Use action verbs and quantifiable achievements
+- Focus on job-relevant content over general content
+- Remove redundant or outdated information
 """
 
-# Common enhancement strategy
-COMMON_ENHANCEMENT_STRATEGY = """
-**Enhancement Strategy:**
+# Enhancement strategy
+ENHANCEMENT_STRATEGY = """
+ENHANCEMENT APPROACH:
 - Replace generic descriptions with job-specific keywords
-- Quantify achievements (e.g., "increased efficiency by 25%")
+- Quantify achievements with metrics and percentages
 - Use action verbs from job description
-- Remove outdated or irrelevant information
-- Consolidate similar experiences
 - Use industry terminology from job posting
-- **KEYWORD HIGHLIGHTING**: Use \\textbf{{}} to bold important keywords, skills, technologies, and achievements that match the job requirements
+- Consolidate similar experiences
+- Use \\textbf{{}} to highlight key technologies, achievements, and skills
 """
 
-# Common experience duration integrity rules
-COMMON_EXPERIENCE_INTEGRITY = """
-**Experience Duration Integrity - CRITICAL:**
-- NEVER fabricate or exaggerate total experience duration
-- If the PROFESSIONAL SUMMARY mentions an experience duration (e.g., "X months"), it MUST be derived directly from explicit date ranges in the EXPERIENCE section
-- Compute duration only when start and end dates are clearly present; otherwise, OMIT duration in the summary
-- If dates are missing or ambiguous, use neutral phrasing like "with hands-on internship experience" or "with practical experience" without quantifying months/years
-- Do not alter or inflate durations stated elsewhere in the CV
+# Factual integrity requirements
+FACTUAL_INTEGRITY_REQUIREMENTS = """
+FACTUAL INTEGRITY:
+- NEVER fabricate or exaggerate experience duration
+- Compute duration only from explicit date ranges
+- If dates are missing, use neutral phrasing without quantifying time
+- Maintain accuracy of all factual information
 """
 
-# Common LaTeX compilation safety rules
-COMMON_LATEX_SAFETY = """
-**LaTeX Compilation Safety Rules (CRITICAL):**
-Before outputting the final LaTeX code, you MUST sanitize all text content to prevent compilation errors:
-
-1. **Character Escaping (MANDATORY):**
-   - & → \\& (CRITICAL: Never leave unescaped & in text content)
-   - % → \\%
-   - $ → \\$
-   - _ → \\_
-   - # → \\#
-   - ~ → \\textasciitilde{{}}
-   - ^ → \\textasciicircum{{}}
-   - {{ and }} → Only escape when used outside LaTeX environments
-   - Backslash (\\) → Double it if not part of a LaTeX command (\\\\ for literal slash)
-
-2. **Special Content Handling:**
-   - URLs, file paths, shell commands → Wrap in \\texttt{{}}
-   - Code snippets, framework names → Use \\texttt{{}} or \\verb|content|
-   - Technical terms with special chars → Escape appropriately
-   - **IMPORTANT**: Do NOT wrap programming language names (JavaScript, Python, React, etc.) in \\texttt{{}} unless they contain special characters that need escaping
-   - **KEYWORD HIGHLIGHTING**: Use \\textbf{{keyword}} to bold important terms like:
-     * Key technologies and frameworks in experience/project descriptions
-     * Important achievements and metrics
-     * Action verbs and industry terminology
-     * Company names and project titles when relevant
-     * **NOTE**: Do NOT use bold in Skills section - keep it clean and simple
-
-3. **Validation Checklist (MANDATORY):**
-   - NO unescaped & symbols in text fields
-   - NO raw alignment/tab (&) symbols outside tables
-   - All brackets and braces properly balanced
-   - All special characters properly escaped
-   - URLs and paths wrapped in \\texttt{{}}
-
-4. **Fallback Strategy:**
-   - If escaping creates excessive backslashes, use natural alternatives (e.g., "and" instead of "&")
-   - Only when semantically safe and maintaining readability
-
-5. **Final Verification:**
-   - Mentally verify the output will compile in standard LaTeX environments (Overleaf, TeXLive, LuaTeX)
-   - Ensure no "Misplaced alignment tab character" or symbol-related errors
+# LaTeX compilation safety rules
+LATEX_COMPILATION_SAFETY = """
+LATEX SAFETY REQUIREMENTS:
+1. **Character Escaping**: Always escape & → \\&, % → \\%, $ → \\$, _ → \\_, # → \\#
+2. **Safe Characters**: Use -- for em-dash, avoid \\textasciimdash, \\textasciitilde, \\textasciicircum
+3. **Content Wrapping**: URLs/paths in \\texttt{{}}, code in \\verb|content|
+4. **Bold Usage**: Use \\textbf{{keyword}} for key terms, ensure balanced braces
+5. **Validation**: No unescaped &, no undefined control sequences, balanced braces
+6. **Fallback**: Use plain text alternatives when escaping becomes complex
+7. **CRITICAL**: Never output regex artifacts like \\1, \\2, \\3 in LaTeX content
 """
 
-# Common quality guidelines
-COMMON_QUALITY_GUIDELINES = """
-**Quality Guidelines:**
+# Execution rules (priority and editing discipline)
+EXECUTION_RULES = """
+EXECUTION RULES:
+Priority if rules conflict: Output Format > Safety > Factual Integrity > Page Fit > Style
+- Preamble Preservation: Do not add/remove packages or redefine macros unless fixing a compile error
+- Section Mapping: Detect sections (Summary, Education, Experience, Projects, Skills, Certifications). Do not invent missing sections
+- Delta Discipline: Modify content only; do not change layout environments, custom commands, or lengths
+- Job-Term Mirroring: Mirror exact phrasing of top job keywords naturally; avoid stuffing
+- ATS Readability: Prefer simple sentences and standard headings; avoid tables for core content unless already present
+- Tense & Person: Past tense for completed roles, present for current; no first-person
+- Quantification: Add metrics only if derivable from text; otherwise use qualitative impact terms
+- Dates & Formats: Normalize to existing CV format; never infer missing dates
+- Proper Nouns: Preserve correct casing for technologies and products (e.g., JavaScript, React)
+- Numbers & Units: Keep unit styles consistent; prefer numerals for measures
+- Bold Throttling: Max 3–5 bolded terms per bullet; never bold in Skills list
+- No New Dependencies: Do not introduce commands that require missing packages
+- URL/Code Handling: Wrap URLs/paths in \\texttt{{}}; avoid breaking lines mid-URL
+- Environment Integrity: Ensure all \\begin{...} have matching \\end{...}; avoid introducing nested itemize unless already present
+- Forbidden Areas: Do not modify contact block (name/email/phone) except for escaping fixes
+- Ambiguity Handling: If information is missing or ambiguous, omit rather than infer; prefer neutral phrasing
+- Unicode Normalization: Normalize dashes (— → --), quotes to ASCII where appropriate
+- Idempotence: Ensure re-running will not double-bold, double-escape, or over-compress content
+"""
+
+# Quality standards
+QUALITY_STANDARDS = """
+QUALITY REQUIREMENTS:
 - Maintain professional tone and authenticity
-- Ensure all information is accurate and truthful
-- Use industry-standard terminology from the job description
+- Ensure factual accuracy and truthfulness
+- Use industry-standard terminology from job description
 - Highlight transferable skills and achievements
-- Remove filler words and unnecessary details
 - Preserve document readability and visual hierarchy
 """
 
-# Keyword highlighting rules
-COMMON_KEYWORD_HIGHLIGHTING = """
-**Keyword Highlighting Rules (CRITICAL):**
-Use \\textbf{{}} to bold important keywords that match the job requirements:
+# Keyword highlighting guidelines
+KEYWORD_HIGHLIGHTING_GUIDELINES = """
+KEYWORD HIGHLIGHTING:
+Use \\textbf{{keyword}} to emphasize:
+- Quantifiable achievements (metrics, percentages, team sizes)
+- Industry terminology (Agile, Scrum, CI/CD, Microservices)
+- Strong action verbs (Developed, Implemented, Optimized, Led)
+- Key technologies and frameworks (JavaScript, React, Python, Docker, AWS)
+- Company/project names when relevant
 
-1. **Key Achievements**: Bold quantifiable results and metrics
-   - Examples: \\textbf{{increased efficiency by 25%}}, \\textbf{{reduced load time by 40%}}, \\textbf{{managed team of 5}}
-
-2. **Industry Terms**: Bold relevant industry terminology and methodologies
-   - Examples: \\textbf{{Agile}}, \\textbf{{Scrum}}, \\textbf{{CI/CD}}, \\textbf{{Microservices}}
-
-3. **Action Verbs**: Bold strong action verbs that demonstrate impact
-   - Examples: \\textbf{{Developed}}, \\textbf{{Implemented}}, \\textbf{{Optimized}}, \\textbf{{Led}}
-
-4. **Company/Project Names**: Bold when they add credibility or relevance
-   - Examples: \\textbf{{Google Cloud Platform}}, \\textbf{{Netflix Architecture}}
-
-5. **Technical Terms in Context**: Bold programming languages, frameworks, and tools when mentioned in experience/project descriptions
-   - Examples: \\textbf{{JavaScript}}, \\textbf{{React.js}}, \\textbf{{Python}}, \\textbf{{Docker}}, \\textbf{{AWS}}
-
-**Guidelines:**
-- Only bold terms that are directly relevant to the target job
-- Don't overuse bold formatting - aim for 3-5 bold terms per bullet point
-- Ensure bold terms enhance readability, not distract from content
-- Match the terminology used in the job description exactly
-- **IMPORTANT**: Do NOT use bold formatting in the Skills section - keep it clean and simple
+Guidelines:
+- 3-5 bold terms per bullet point maximum
+- Only highlight job-relevant terms
+- Match job description terminology exactly
+- Keep Skills section clean (no bold formatting)
 """
 
-# Advanced quality assurance (for advanced prompts)
+# Advanced quality assurance
 ADVANCED_QUALITY_ASSURANCE = """
-**Quality Assurance:**
+ADVANCED QUALITY CHECK:
 - Every word must add value to job application
 - Maintain professional authenticity
 - Ensure factual accuracy
@@ -165,60 +137,78 @@ ADVANCED_QUALITY_ASSURANCE = """
 - Preserve document readability and visual hierarchy
 """
 
-# Factual integrity rules (for slicing prompt)
-FACTUAL_INTEGRITY_RULES = """
-- **NEVER fabricate, exaggerate, or alter factual details**, including:
-  - Employment duration, company names, or job titles
-  - Dates of education, internship, or work experience
-  - Personal information such as GPA, awards, or certifications not present in the source
-- When clarifying ambiguous phrasing, stay conservative and truthful (e.g., keep "3 months" if stated, not "6 months")
-- If a requested detail (e.g., GPA or start date) is missing from the CV, simply omit it rather than inventing or estimating values
+# Enhanced factual integrity (for slicing prompt)
+ENHANCED_FACTUAL_INTEGRITY = """
+ENHANCED FACTUAL INTEGRITY:
+- NEVER fabricate, exaggerate, or alter factual details
+- Preserve employment duration, company names, job titles exactly
+- Keep education dates, internships, work experience dates accurate
+- Maintain personal information (GPA, awards, certifications) as stated
+- When clarifying ambiguous phrasing, stay conservative and truthful
+- If details are missing, omit rather than invent or estimate
 """
 
-# Personal projects slicing rules (for slicing prompt)
+# Personal projects slicing (for slicing prompt)
 PERSONAL_PROJECTS_SLICING = """
-**PERSONAL PROJECTS SLICING - CRITICAL:**
-When multiple personal projects exist, you MUST intelligently select only the most job-relevant ones:
+PROJECT SLICING STRATEGY:
+When multiple personal projects exist, select only the most job-relevant ones:
 
-1. **Project Relevance Analysis**: Score each project 1-10 based on:
+1. **Relevance Scoring**: Rate each project 1-10 based on:
    - Technology stack alignment with job requirements
    - Project complexity matching job level
    - Industry relevance to target role
    - Demonstrated skills mentioned in job description
 
-2. **Project Selection Rules**:
-   - If 4+ projects exist: Keep only TOP 2 most relevant projects
-   - If 3 projects exist: Keep TOP 2-3 based on content length
-   - If 2 projects exist: Keep both if space allows, otherwise keep most relevant
-   - If 1 project exists: Keep it if relevant, remove if not
+2. **Selection Rules**:
+   - 4+ projects: Keep TOP 2 most relevant
+   - 3 projects: Keep TOP 2-3 based on content length
+   - 2 projects: Keep both if space allows, otherwise most relevant
+   - 1 project: Keep if relevant, remove if not
 
-3. **Content Length Consideration**:
-   - For projects with extensive descriptions: Prioritize shorter, more impactful projects
-   - For projects with brief descriptions: Can include more projects
-   - Total projects section should not exceed 15% of CV word budget
-
-4. **Project Enhancement Priority**:
-   - Focus on projects that showcase skills mentioned in job description
+3. **Content Optimization**:
+   - Focus on projects showcasing job-relevant skills
    - Emphasize quantifiable results and achievements
    - Use job-specific terminology and keywords
-   - Remove generic or outdated project descriptions
+   - Remove generic or outdated descriptions
+"""
+
+# Final validation checklist (preflight and pagination)
+FINAL_VALIDATION_CHECKLIST = """
+FINAL VALIDATION CHECKLIST:
+Output Schema:
+- Starts with \\documentclass and ends with \\end{document}
+- No prose outside LaTeX
+Compile Preflight:
+- No unescaped &, %, $, _, # in text
+- No undefined control sequences
+- Braces balanced; all environments properly closed
+- No markdown artifacts (** __ ```)
+Pagination & Fit:
+- Mentally paginate; if risk of overflow, compress least relevant clauses first
+- Keep section separation readable without altering layout commands
+Consistency:
+- Dates, units, casing, tense consistent with existing CV conventions
 """
 
 # Combined common template for easy injection
 COMMON_PROMPT_TEMPLATE = f"""
-{COMMON_CRITICAL_RULES}
+{CORE_OUTPUT_REQUIREMENTS}
 
-{COMMON_SPACING_RULES}
+{SPACING_PRESERVATION_RULES}
 
-{COMMON_LIST_FORMATTING}
+{EXECUTION_RULES}
 
-{COMMON_ENHANCEMENT_STRATEGY}
+{CONTENT_STRUCTURE_GUIDELINES}
 
-{COMMON_KEYWORD_HIGHLIGHTING}
+{ENHANCEMENT_STRATEGY}
 
-{COMMON_QUALITY_GUIDELINES}
+{KEYWORD_HIGHLIGHTING_GUIDELINES}
 
-{COMMON_EXPERIENCE_INTEGRITY}
+{QUALITY_STANDARDS}
 
-{COMMON_LATEX_SAFETY}
+{FACTUAL_INTEGRITY_REQUIREMENTS}
+
+{LATEX_COMPILATION_SAFETY}
+
+{FINAL_VALIDATION_CHECKLIST}
 """

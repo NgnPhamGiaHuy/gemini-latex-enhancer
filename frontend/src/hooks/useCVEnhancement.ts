@@ -6,9 +6,60 @@ import {
     alignSectionsBatch,
     BatchAlignResponse,
     fetchProgress,
+    previewFile,
 } from "@/lib/api";
 
 import type { EnhancementParams, UseCVEnhancementProps } from "@/types";
+
+const extractJobDetailsFromPreview = (preview: {
+    headers: string[];
+    rows: string[][];
+}) => {
+    const { headers, rows } = preview;
+
+    if (!headers.length || !rows.length) return null;
+
+    const firstRow = rows[0];
+
+    const jobTitleIndex = findFieldIndex(headers, [
+        "title",
+        "position",
+        "role",
+        "job",
+    ]);
+    const jobDescIndex = findFieldIndex(headers, [
+        "description",
+        "desc",
+        "responsibilities",
+        "duties",
+    ]);
+    const companyIndex = findFieldIndex(headers, [
+        "company",
+        "employer",
+        "organization",
+        "firm",
+    ]);
+
+    if (jobTitleIndex === -1 || jobDescIndex === -1) {
+        return null; // Required fields missing
+    }
+
+    return {
+        jobTitle: firstRow[jobTitleIndex] || "",
+        jobDescription: firstRow[jobDescIndex] || "",
+        companyName: companyIndex >= 0 ? firstRow[companyIndex] || "" : "",
+    };
+};
+
+const findFieldIndex = (headers: string[], keywords: string[]): number => {
+    for (let i = 0; i < headers.length; i++) {
+        const headerLower = headers[i].toLowerCase();
+        if (keywords.some((keyword) => headerLower.includes(keyword))) {
+            return i;
+        }
+    }
+    return -1;
+};
 
 const useCVEnhancement = ({
     onEnhanceSuccess,
@@ -22,26 +73,16 @@ const useCVEnhancement = ({
                 jobDescription,
                 companyName,
                 originalLatexContent,
+                originalFilename,
                 modelId,
                 sliceProjects,
             } = params;
 
             if (!sessionId) return;
 
-            // Start loading with progress tracking
             onLoadingChange(true, 10, "Preparing enhancement...");
 
             try {
-                console.log("=== FRONTEND ENHANCE HANDLER STARTED ===");
-                console.log("Enhance parameters:", {
-                    sessionId,
-                    jobTitle,
-                    jobDescription,
-                    companyName,
-                    latexContentLength: originalLatexContent.length,
-                    sliceProjects,
-                });
-
                 onLoadingChange(true, 30, "Analyzing job requirements...");
 
                 const res = await alignSections({
@@ -50,21 +91,18 @@ const useCVEnhancement = ({
                     job_description: jobDescription,
                     company_name: companyName || undefined,
                     latex_content: originalLatexContent,
+                    original_filename: originalFilename,
                     model_id: modelId,
                     slice_projects: sliceProjects,
                 });
 
                 onLoadingChange(true, 70, "Generating enhanced CV...");
-
-                console.log("Enhance response received:", res);
-
                 onLoadingChange(true, 90, "Compiling LaTeX to PDF...");
 
                 onEnhanceSuccess({ tex: res.tex_path, pdf: res.pdf_path });
 
                 onLoadingChange(false, 100, "Enhancement completed!");
                 toast.success("CV enhanced and ready for download!");
-                console.log("=== FRONTEND ENHANCE HANDLER COMPLETED ===");
             } catch (error) {
                 console.error("Align failed:", error);
                 onLoadingChange(false, 0, "Enhancement failed");
@@ -80,6 +118,7 @@ const useCVEnhancement = ({
             async (params: {
                 sessionId: string;
                 latexContent: string;
+                originalFilename?: string;
                 jobFile: File;
                 modelId?: string;
                 sliceProjects?: boolean;
@@ -93,6 +132,7 @@ const useCVEnhancement = ({
                 const {
                     sessionId,
                     latexContent,
+                    originalFilename,
                     jobFile,
                     modelId,
                     sliceProjects,
@@ -103,93 +143,20 @@ const useCVEnhancement = ({
 
                 onLoadingChange(true, 10, "Preparing batch enhancement...");
                 try {
-                    // First, preview the file to extract job details for regeneration
                     if (onJobDetailsExtracted) {
                         try {
-                            const preview = await import("@/lib/api").then(
-                                (m) => m.previewFile(jobFile)
-                            );
+                            const preview = await previewFile(jobFile);
+
                             if (
-                                preview.headers &&
-                                preview.rows &&
+                                preview?.headers &&
+                                preview?.rows &&
                                 preview.rows.length > 0
                             ) {
-                                const headersLower = preview.headers.map((h) =>
-                                    h.toLowerCase()
-                                );
-
-                                // Find job title field
-                                let jobTitleField = "";
-                                for (const header of preview.headers) {
-                                    const headerLower = header.toLowerCase();
-                                    if (
-                                        headerLower.includes("title") ||
-                                        headerLower.includes("position") ||
-                                        headerLower.includes("role") ||
-                                        headerLower.includes("job")
-                                    ) {
-                                        jobTitleField = header;
-                                        break;
-                                    }
+                                const jobDetails =
+                                    extractJobDetailsFromPreview(preview);
+                                if (jobDetails) {
+                                    onJobDetailsExtracted(jobDetails);
                                 }
-
-                                // Find job description field
-                                let jobDescField = "";
-                                for (const header of preview.headers) {
-                                    const headerLower = header.toLowerCase();
-                                    if (
-                                        headerLower.includes("description") ||
-                                        headerLower.includes("desc") ||
-                                        headerLower.includes(
-                                            "responsibilities"
-                                        ) ||
-                                        headerLower.includes("duties")
-                                    ) {
-                                        jobDescField = header;
-                                        break;
-                                    }
-                                }
-
-                                // Find company name field
-                                let companyField = "";
-                                for (const header of preview.headers) {
-                                    const headerLower = header.toLowerCase();
-                                    if (
-                                        headerLower.includes("company") ||
-                                        headerLower.includes("employer") ||
-                                        headerLower.includes("organization") ||
-                                        headerLower.includes("firm")
-                                    ) {
-                                        companyField = header;
-                                        break;
-                                    }
-                                }
-
-                                // Extract first job's details
-                                const firstRow = preview.rows[0];
-                                const jobTitleIndex =
-                                    preview.headers.indexOf(jobTitleField);
-                                const jobDescIndex =
-                                    preview.headers.indexOf(jobDescField);
-                                const companyIndex =
-                                    preview.headers.indexOf(companyField);
-
-                                const jobDetails = {
-                                    jobTitle:
-                                        jobTitleIndex >= 0
-                                            ? firstRow[jobTitleIndex] || ""
-                                            : "",
-                                    jobDescription:
-                                        jobDescIndex >= 0
-                                            ? firstRow[jobDescIndex] || ""
-                                            : "",
-                                    companyName:
-                                        companyIndex >= 0
-                                            ? firstRow[companyIndex] || ""
-                                            : "",
-                                };
-
-                                onJobDetailsExtracted(jobDetails);
                             }
                         } catch (e) {
                             console.warn(
@@ -199,18 +166,16 @@ const useCVEnhancement = ({
                         }
                     }
 
-                    // Kick off batch
                     const resPromise = alignSectionsBatch({
                         session_id: sessionId,
                         latex_content: latexContent,
+                        original_filename: originalFilename,
                         job_file: jobFile,
                         model_id: modelId,
                         slice_projects: sliceProjects,
                     });
 
-                    // Poll progress while backend processes
                     let done = false;
-                    // Start with a small delay so we don't stick at 10%
                     await new Promise((r) => setTimeout(r, 600));
                     while (!done) {
                         await new Promise((r) => setTimeout(r, 1000));
@@ -220,7 +185,6 @@ const useCVEnhancement = ({
                             const message =
                                 p.message ||
                                 `Processing ${p.current} of ${p.total}`;
-                            // Ensure we never regress; cap at 98% until completion
                             const safePercent = Math.max(
                                 15,
                                 Math.min(98, p.percent)
@@ -231,9 +195,7 @@ const useCVEnhancement = ({
                             } else if (p.status === "failed") {
                                 throw new Error("Batch enhancement failed");
                             }
-                        } catch (e) {
-                            // Ignore transient errors
-                        }
+                        } catch (e) {}
                     }
 
                     const res: BatchAlignResponse = await resPromise;

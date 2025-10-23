@@ -34,6 +34,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
+                suppressHydrationWarning
                 className={`${spaceGrotesk.variable} ${plexMono.variable} antialiased`}
             >
                 <AppTooltipProvider>{children}</AppTooltipProvider>

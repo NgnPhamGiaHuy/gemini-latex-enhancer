@@ -22,6 +22,7 @@ const AlignStep = ({
     onLoadingChange,
     sessionId,
     originalLatexContent,
+    originalFilename,
     onBatchJobDetailsExtracted,
     onBatchEnhancementSuccess,
 }: AlignStepProps) => {
@@ -39,6 +40,7 @@ const AlignStep = ({
             jobDescription,
             companyName,
             originalLatexContent,
+            originalFilename,
             modelId: selectedModel,
             sliceProjects,
         });
@@ -70,6 +72,7 @@ const AlignStep = ({
                         const res = await handleBatchEnhancement({
                             sessionId,
                             latexContent: originalLatexContent,
+                            originalFilename,
                             jobFile,
                             modelId: selectedModel,
                             sliceProjects,

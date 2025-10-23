@@ -10,6 +10,7 @@ Responsibilities:
 """
 
 import os
+import re
 import shutil
 import uuid
 from typing import Optional
@@ -31,7 +32,7 @@ class FileService:
 
     @staticmethod
     def save_uploaded_file(file: UploadFile) -> str:
-        """Persist an uploaded `.tex` file to the uploads directory.
+        """Persist an uploaded `.tex` file with enhanced security validation.
 
         Args:
             file: FastAPI `UploadFile` representing the client upload.
@@ -64,16 +65,51 @@ class FileService:
             file_path = os.path.join(settings.UPLOAD_DIR, f"{file_id}.tex")
             logger.info(f"Generated file path: {file_path}")
 
-            # Save file
+            # Read file content with enhanced validation
             logger.info("Reading file content...")
             content = file.file.read()
             logger.info(f"File content read, size: {len(content)} bytes")
 
+            # Validate file size before processing
             if len(content) > settings.MAX_FILE_SIZE:
                 logger.error(
                     f"❌ File too large: {len(content)} bytes (max: {settings.MAX_FILE_SIZE})"
                 )
                 raise HTTPException(status_code=400, detail="File too large")
+
+            # Additional content validation
+            if len(content) == 0:
+                logger.error("❌ File is empty")
+                raise HTTPException(status_code=400, detail="File is empty")
+
+            # Validate content is valid UTF-8
+            try:
+                content.decode("utf-8")
+                logger.info("✅ File content is valid UTF-8")
+            except UnicodeDecodeError as e:
+                logger.error(f"❌ File contains invalid characters: {str(e)}")
+                raise HTTPException(
+                    status_code=400, detail="File contains invalid characters"
+                )
+
+            # Basic content validation - check for suspicious patterns
+            content_str = content.decode("utf-8")
+            if len(content_str.strip()) < 10:
+                logger.error("❌ File content too short")
+                raise HTTPException(
+                    status_code=400, detail="File content appears to be too short"
+                )
+
+            # Check for basic LaTeX structure
+            if not any(
+                marker in content_str
+                for marker in [
+                    "\\documentclass",
+                    "\\begin{document}",
+                    "\\end{document}",
+                ]
+            ):
+                logger.warning("⚠️ File may not contain valid LaTeX structure")
 
             logger.info("Writing file to disk...")
             with open(file_path, "wb") as f:
@@ -164,6 +200,119 @@ class FileService:
             logger.error(f"Failed to save result: {str(e)}")
             raise HTTPException(
                 status_code=500, detail=f"Failed to save result: {str(e)}"
+            )
+
+    @staticmethod
+    def save_result_with_original_name(
+        latex_content: str, original_filename: str
+    ) -> str:
+        """Write enhanced LaTeX content using the original filename.
+
+        Args:
+            latex_content: The LaTeX source to persist.
+            original_filename: Original filename to use (with .tex extension).
+
+        Returns:
+            Absolute path to the created `.tex` file within outputs.
+
+        Raises:
+            HTTPException: If writing fails.
+        """
+        try:
+            FileService.ensure_directories()
+
+            # Use original filename directly
+            result_path = os.path.join(settings.OUTPUT_DIR, original_filename)
+
+            # Save enhanced content
+            with open(result_path, "w", encoding="utf-8") as f:
+                f.write(latex_content)
+
+            logger.info(f"Enhanced CV saved with original name: {result_path}")
+            return result_path
+
+        except Exception as e:
+            logger.error(f"Failed to save result with original name: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to save result with original name: {str(e)}",
+            )
+
+    @staticmethod
+    def save_result_with_job_info(
+        latex_content: str,
+        original_filename: str,
+        job_title: str,
+        company_name: str = None,
+    ) -> str:
+        """Write enhanced LaTeX content using format: Filename-Job title-Company name(if have).
+
+        Args:
+            latex_content: The LaTeX source to persist.
+            original_filename: Original filename (with .tex extension).
+            job_title: Job title for the enhancement.
+            company_name: Optional company name.
+
+        Returns:
+            Absolute path to the created `.tex` file within outputs.
+
+        Raises:
+            HTTPException: If writing fails.
+        """
+        try:
+            FileService.ensure_directories()
+
+            # Remove .tex extension if present and sanitize base name
+            base_name = (
+                original_filename.replace(".tex", "")
+                if original_filename.endswith(".tex")
+                else original_filename
+            )
+            # Remove parentheses and other non-critical special characters
+            base_name = re.sub(r"[()\[\]{}~`!@#$%^&+=,;']+", "", base_name)
+            # Replace forbidden filesystem characters with hyphens
+            base_name = re.sub(r"[\\/:*?\"<>|]+", "-", base_name)
+            base_name = re.sub(r"\s+", "-", base_name)
+            base_name = base_name.strip("-")
+
+            # Sanitize job title and company name for filesystem compatibility
+            # Remove parentheses and other non-critical special characters
+            job_title_clean = re.sub(r"[()\[\]{}~`!@#$%^&+=,;']+", "", job_title)
+            # Replace forbidden filesystem characters with hyphens
+            job_title_clean = re.sub(r"[\\/:*?\"<>|]+", "-", job_title_clean)
+            job_title_clean = re.sub(r"\s+", "-", job_title_clean)
+            job_title_clean = job_title_clean.strip("-")
+
+            company_name_clean = None
+            if company_name:
+                # Remove parentheses and other non-critical special characters
+                company_name_clean = re.sub(
+                    r"[()\[\]{}~`!@#$%^&+=,;']+", "", company_name
+                )
+                # Replace forbidden filesystem characters with hyphens
+                company_name_clean = re.sub(r"[\\/:*?\"<>|]+", "-", company_name_clean)
+                company_name_clean = re.sub(r"\s+", "-", company_name_clean)
+                company_name_clean = company_name_clean.strip("-")
+
+            # Build filename in format: Filename-Job title-Company name(if have)
+            if company_name_clean:
+                final_name = f"{base_name}-{job_title_clean}-{company_name_clean}"
+            else:
+                final_name = f"{base_name}-{job_title_clean}"
+
+            result_path = os.path.join(settings.OUTPUT_DIR, f"{final_name}.tex")
+
+            # Save enhanced content
+            with open(result_path, "w", encoding="utf-8") as f:
+                f.write(latex_content)
+
+            logger.info(f"Enhanced CV saved with job info: {result_path}")
+            return result_path
+
+        except Exception as e:
+            logger.error(f"Failed to save result with job info: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to save result with job info: {str(e)}"
             )
 
     @staticmethod

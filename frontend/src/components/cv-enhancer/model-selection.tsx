@@ -29,6 +29,56 @@ import {
     SelectLabel,
 } from "@/components/ui/select";
 
+// Utility functions for model classification
+const MODEL_PATTERNS = {
+    badge: {
+        pro: "secondary",
+        preview: "outline", 
+        exp: "outline",
+        default: "default"
+    },
+    description: {
+        preview: "Preview",
+        exp: "Experimental", 
+        lite: "Lightweight",
+        pro: "Advanced"
+    },
+    category: {
+        "2.5": "2.5 Series",
+        "2.0": "2.0 Series", 
+        "1.5": "1.5 Series",
+        "1.0": "1.0 Series",
+        gemma: "Gemma Series"
+    }
+} as const;
+
+const getModelBadgeVariant = (model: AIModel): string => {
+    if (model.default) return MODEL_PATTERNS.badge.default;
+    
+    for (const [pattern, variant] of Object.entries(MODEL_PATTERNS.badge)) {
+        if (model.id.includes(pattern)) return variant;
+    }
+    return "secondary";
+};
+
+const getModelDescription = (model: AIModel): string => {
+    const baseDesc = model.description || "No description available";
+    
+    for (const [pattern, suffix] of Object.entries(MODEL_PATTERNS.description)) {
+        if (model.id.includes(pattern)) {
+            return `${baseDesc} (${suffix})`;
+        }
+    }
+    return baseDesc;
+};
+
+const getModelCategory = (model: AIModel): string => {
+    for (const [pattern, category] of Object.entries(MODEL_PATTERNS.category)) {
+        if (model.id.includes(pattern)) return category;
+    }
+    return "Other";
+};
+
 const ModelSelection = ({
     models,
     selectedModel,
@@ -40,42 +90,6 @@ const ModelSelection = ({
 }: ModelSelectionProps) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isExpanded, setIsExpanded] = useState(false);
-
-    const getModelBadgeVariant = (model: AIModel) => {
-        if (model.default) return "default";
-        if (model.id.includes("pro")) return "secondary";
-        if (model.id.includes("preview") || model.id.includes("exp"))
-            return "outline";
-        return "secondary";
-    };
-
-    const getModelDescription = (model: AIModel) => {
-        const baseDesc = model.description || "No description available";
-
-        if (model.id.includes("preview")) {
-            return `${baseDesc} (Preview)`;
-        }
-        if (model.id.includes("exp")) {
-            return `${baseDesc} (Experimental)`;
-        }
-        if (model.id.includes("lite")) {
-            return `${baseDesc} (Lightweight)`;
-        }
-        if (model.id.includes("pro")) {
-            return `${baseDesc} (Advanced)`;
-        }
-
-        return baseDesc;
-    };
-
-    const getModelCategory = (model: AIModel) => {
-        if (model.id.includes("2.5")) return "2.5 Series";
-        if (model.id.includes("2.0")) return "2.0 Series";
-        if (model.id.includes("1.5")) return "1.5 Series";
-        if (model.id.includes("1.0")) return "1.0 Series";
-        if (model.id.includes("gemma")) return "Gemma Series";
-        return "Other";
-    };
 
     // Filter and group models
     const filteredAndGroupedModels = useMemo(() => {

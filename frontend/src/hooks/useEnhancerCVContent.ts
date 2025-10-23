@@ -8,17 +8,21 @@ const useEnhancerCVContent = (): EnhancerCVContentState &
     const [originalLatexContent, setOriginalLatexContent] =
         useState<string>("");
     const [sections, setSections] = useState<Section[]>([]);
+    const [originalFilename, setOriginalFilename] = useState<string>("");
 
     const resetCVContent = () => {
         setOriginalLatexContent("");
         setSections([]);
+        setOriginalFilename("");
     };
 
     return {
         originalLatexContent,
         sections,
+        originalFilename,
         setOriginalLatexContent,
         setSections,
+        setOriginalFilename,
         resetCVContent,
     };
 };

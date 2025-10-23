@@ -13,6 +13,9 @@ All prompts use shared common sections from shared_template.py for consistency a
 
 The advanced prompt is used by default (configurable via USE_ADVANCED_PROMPT setting)
 to ensure CVs don't expand beyond one page while maintaining quality and relevance.
+
+Version: 2.0
+Last Updated: 2025-10-24
 """
 
 CV_ENHANCEMENT_PROMPT = """
@@ -21,26 +24,28 @@ Enhance this LaTeX CV to align with the following job context:
 - Job Title: {job_title}
 - Job Description: {job_description}
 - Company Name: {company_name}
+
 {common_template}
-PAGE LENGTH CONSTRAINT - CRITICAL:
-The CV MUST fit on ONE PAGE. To ensure this, strictly limit content per section:
-**Section Word Limits (approximate):**
-- Header/Contact Info: Keep minimal (name, email, phone, location)
-- Professional Summary/Objective: MAX 50 words
-- Education: MAX 80 words per degree/institution
+
+ONE-PAGE CONSTRAINT:
+The CV MUST fit on ONE PAGE. Use these word limits:
+- Header/Contact: Minimal (name, email, phone, location)
+- Professional Summary: MAX 50 words
+- Education: MAX 80 words per degree
 - Work Experience: MAX 120 words per position
-- Skills: MAX 60 words (use concise bullet points)
+- Skills: MAX 60 words (concise bullet points)
 - Projects: MAX 100 words per project
 - Certifications: MAX 40 words per certification
 - Additional sections: MAX 60 words each
-**Content Optimization Strategy:**
+
+OPTIMIZATION STRATEGY:
 1. Prioritize job-relevant content over general content
 2. Use action verbs and quantifiable achievements
 3. Remove redundant or outdated information
 4. Use bullet points for better space utilization
-5. Focus on the most recent and relevant experiences
-6. If content exceeds limits, prioritize the most impactful information
-7. Use concise, powerful language - every word must add value
+5. Focus on most recent and relevant experiences
+6. Use concise, powerful language - every word must add value
+
 LaTeX CV to enhance:
 {latex_content}
 """
@@ -52,27 +57,34 @@ Enhance this LaTeX CV to align with the following job context:
 - Job Title: {job_title}
 - Job Description: {job_description}
 - Company Name: {company_name}
+
 {common_template}
+
 ONE-PAGE CONSTRAINT - ABSOLUTE PRIORITY:
 The enhanced CV MUST fit on exactly ONE PAGE. This is non-negotiable.
-**Dynamic Section Analysis & Word Limits:**
-First, analyze the CV structure and allocate word budget accordingly:
-1. **Header/Contact** (5% of total): Name, email, phone, location only
-2. **Professional Summary** (8% of total): MAX 40-60 words, job-focused
-3. **Core Sections** (distribute remaining 87% based on relevance):
-   - Work Experience: 40-50% of remaining words (most important)
-   - Education: 15-20% of remaining words
-   - Skills: 15-20% of remaining words
-   - Projects/Portfolio: 10-15% of remaining words
-   - Other sections: 5-10% of remaining words each
-**Content Prioritization Algorithm:**
-1. **Job Relevance Score**: Rate each piece of content 1-10 based on job description match
-2. **Recency Weight**: Recent experience gets higher priority
-3. **Impact Quantification**: Include numbers, percentages, achievements
-4. **Space Efficiency**: Use bullet points, abbreviations, concise phrasing
+
+DYNAMIC SECTION ANALYSIS:
+First, analyze the CV structure and allocate word budget:
+1. Header/Contact (5%): Name, email, phone, location only
+2. Professional Summary (8%): MAX 40-60 words, job-focused
+3. Core Sections (distribute remaining 87% based on relevance):
+   - Work Experience: 40-50% (most important)
+   - Education: 15-20%
+   - Skills: 15-20%
+   - Projects/Portfolio: 10-15%
+   - Other sections: 5-10% each
+
+CONTENT PRIORITIZATION:
+1. Job Relevance Score: Rate each piece of content 1-10 based on job description match
+2. Recency Weight: Recent experience gets higher priority
+3. Impact Quantification: Include numbers, percentages, achievements
+4. Space Efficiency: Use bullet points, abbreviations, concise phrasing
+
 {quality_assurance}
-**Final Check:**
+
+FINAL CHECK:
 Before outputting, mentally verify the CV would fit on one page when printed while maintaining proper spacing and readability.
+
 LaTeX CV to enhance:
 {latex_content}
 """
@@ -84,29 +96,38 @@ Enhance this LaTeX CV to align with the following job context:
 - Job Title: {job_title}
 - Job Description: {job_description}
 - Company Name: {company_name}
+
 {common_template}
+
 {factual_integrity_rules}
+
 ONE-PAGE CONSTRAINT - ABSOLUTE PRIORITY:
 The enhanced CV MUST fit on exactly ONE PAGE. This is non-negotiable.
+
 {personal_projects_slicing}
-**Dynamic Section Analysis & Word Limits:**
-First, analyze the CV structure and allocate word budget accordingly:
-1. **Header/Contact** (5% of total): Name, email, phone, location only
-2. **Professional Summary** (8% of total): MAX 40-60 words, job-focused
-3. **Core Sections** (distribute remaining 87% based on relevance):
-   - Work Experience: 40-50% of remaining words (most important)
-   - Education: 15-20% of remaining words
-   - Skills: 15-20% of remaining words
-   - Projects/Portfolio: 10-15% of remaining words (SLICED based on relevance)
-   - Other sections: 5-10% of remaining words each
-**Content Prioritization Algorithm:**
-1. **Job Relevance Score**: Rate each piece of content 1-10 based on job description match
-2. **Recency Weight**: Recent experience gets higher priority
-3. **Impact Quantification**: Include numbers, percentages, achievements
-4. **Space Efficiency**: Use bullet points, abbreviations, concise phrasing
+
+DYNAMIC SECTION ANALYSIS:
+First, analyze the CV structure and allocate word budget:
+1. Header/Contact (5%): Name, email, phone, location only
+2. Professional Summary (8%): MAX 40-60 words, job-focused
+3. Core Sections (distribute remaining 87% based on relevance):
+   - Work Experience: 40-50% (most important)
+   - Education: 15-20%
+   - Skills: 15-20%
+   - Projects/Portfolio: 10-15% (SLICED based on relevance)
+   - Other sections: 5-10% each
+
+CONTENT PRIORITIZATION:
+1. Job Relevance Score: Rate each piece of content 1-10 based on job description match
+2. Recency Weight: Recent experience gets higher priority
+3. Impact Quantification: Include numbers, percentages, achievements
+4. Space Efficiency: Use bullet points, abbreviations, concise phrasing
+
 {quality_assurance}
-**Final Check:**
+
+FINAL CHECK:
 Before outputting, mentally verify the CV would fit on one page when printed while maintaining proper spacing and readability.
+
 LaTeX CV to enhance:
 {latex_content}
 """

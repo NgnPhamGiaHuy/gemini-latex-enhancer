@@ -25,8 +25,8 @@ class LatexService:
         """Check whether LaTeX contains essential document structure.
 
         This validator performs inexpensive checks to catch common issues early
-        (such as markdown code fences or missing document markers) before
-        invoking the LaTeX toolchain.
+        (such as markdown code fences, missing document markers, or undefined
+        control sequences) before invoking the LaTeX toolchain.
 
         Args:
             latex_content: Candidate LaTeX source string.
@@ -47,6 +47,25 @@ class LatexService:
             # Check for common issues
             if "```" in latex_content:
                 logger.error("LaTeX content contains markdown code blocks")
+                return False
+
+            # Check for undefined control sequences that commonly cause compilation errors
+            undefined_sequences = [
+                "\\textasciimdash",
+                "\\textasciitilde",
+                "\\textasciicircum",
+            ]
+
+            for sequence in undefined_sequences:
+                if sequence in latex_content:
+                    logger.error(
+                        f"LaTeX content contains undefined control sequence: {sequence}"
+                    )
+                    return False
+
+            # Check for regex artifacts that cause undefined control sequences
+            if re.search(r"\\[0-9]+", latex_content):
+                logger.error("LaTeX content contains regex artifacts (\\1, \\2, etc.)")
                 return False
 
             logger.info("LaTeX content validation passed")

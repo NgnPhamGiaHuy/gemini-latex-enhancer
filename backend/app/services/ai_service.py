@@ -10,6 +10,7 @@ The service exposes one primary capability:
 1) enhance_cv: return a full, compilable LaTeX document tailored to a job
 """
 
+import re
 import google.generativeai as genai
 from typing import Dict, Any
 from fastapi import HTTPException
@@ -138,15 +139,15 @@ class AIService:
     def _clean_latex_response(self, response_text: str) -> str:
         """Normalize AI output to pure LaTeX.
 
-        Strips common markdown code fences (e.g., ```latex ... ```) and trims
-        leading/trailing artifacts so the result can be fed directly to LaTeX
-        compilation.
+        Strips common markdown code fences (e.g., ```latex ... ```), fixes common
+        LaTeX issues, and trims leading/trailing artifacts so the result can be
+        fed directly to LaTeX compilation.
 
         Args:
             response_text: Raw text returned by the model.
 
         Returns:
-            Cleaned LaTeX string without markdown formatting.
+            Cleaned LaTeX string without markdown formatting and LaTeX issues.
         """
         logger.info("=== CLEANING LATEX RESPONSE ===")
         logger.debug(f"Raw response length: {len(response_text)} characters")
@@ -180,6 +181,61 @@ class AIService:
 
         cleaned = cleaned.strip()
 
+        # Fix common LaTeX issues that cause compilation errors
+        logger.info("=== FIXING COMMON LATEX ISSUES ===")
+
+        # Fix markdown formatting
+        cleaned = re.sub(
+            r"(?<!\\)\*\*(.+?)\*\*", r"\\textbf{\1}", cleaned, flags=re.DOTALL
+        )
+        cleaned = re.sub(r"__([^_]+?)__", r"\\textbf{\1}", cleaned, flags=re.DOTALL)
+
+        # Fix undefined control sequences
+        undefined_sequences = {
+            "\\textasciimdash": "--",
+            "\\textasciitilde": "~",
+            "\\textasciicircum": "^",
+        }
+
+        for sequence, replacement in undefined_sequences.items():
+            if sequence in cleaned:
+                logger.info(f"Replacing {sequence} with {replacement}")
+                cleaned = cleaned.replace(sequence, replacement)
+
+        # Remove regex artifacts
+        regex_artifacts = [r"\\[0-9]+", r"\\1", r"\\2", r"\\3"]
+        for pattern in regex_artifacts:
+            if re.search(pattern, cleaned):
+                logger.warning(f"Found regex artifact pattern: {pattern}")
+                cleaned = re.sub(pattern, "", cleaned)
+
+        # Fix unescaped ampersands
+        unescaped_ampersands = re.findall(r"(?<!\\)&(?!\w)", cleaned)
+        if unescaped_ampersands:
+            logger.info(
+                f"Found {len(unescaped_ampersands)} unescaped & symbols, fixing..."
+            )
+            cleaned = re.sub(r"(?<!\\)&(?!\w)", r"\\&", cleaned)
+
+        # Heuristically close any runaway \textbf{... that lacks a closing }
+        try:
+            # Close before newline if missing }
+            cleaned = re.sub(r"(\\textbf\{[^\n}]*)(\n)", r"\\1}\\2", cleaned)
+            # As a last resort, if openings greatly exceed closings, append a limited number of }
+            open_bold = len(re.findall(r"\\textbf\s*\{", cleaned))
+            close_braces = len(re.findall(r"\}", cleaned))
+            # Only consider imbalance likely caused by a single missing brace
+            if open_bold > 0:
+                # Count closes that immediately follow textbf contexts by scanning lines
+                # If we still detect some obvious imbalance, append up to 3 '}'
+                unmatched_estimate = max(
+                    0, open_bold - len(re.findall(r"\\textbf\s*\{[^}]*\}", cleaned))
+                )
+                if unmatched_estimate > 0:
+                    cleaned += "}" * min(3, unmatched_estimate)
+        except Exception:
+            pass
+
         logger.info(f"Final cleaned LaTeX length: {len(cleaned)} characters")
         logger.debug(f"Cleaned LaTeX preview: {cleaned[:200]}...")
 
@@ -198,8 +254,6 @@ class AIService:
         Returns:
             Enhanced LaTeX with restored \\vspace commands
         """
-        import re
-
         logger.info("=== RESTORING VSPACE COMMANDS ===")
 
         # Find all \\vspace commands in the original
@@ -226,43 +280,27 @@ class AIService:
             f"Found {len(missing_vspaces)} missing \\vspace commands, attempting to restore"
         )
 
-        # Try to restore missing \\vspace commands by finding similar contexts
+        # Simple restoration: append missing vspaces after itemize blocks
         restored_latex = enhanced_latex
 
         for missing_vspace in missing_vspaces:
-            # Find the context around this vspace in the original
-            vspace_index = original_latex.find(missing_vspace)
-            if vspace_index == -1:
-                continue
+            # Find itemize blocks that might need spacing
+            itemize_pattern = r"\\end\{itemize\}"
+            matches = list(re.finditer(itemize_pattern, restored_latex))
 
-            # Get some context before and after the vspace
-            context_start = max(0, vspace_index - 100)
-            context_end = min(
-                len(original_latex), vspace_index + len(missing_vspace) + 100
-            )
-            context = original_latex[context_start:context_end]
-
-            # Look for similar context in enhanced version
-            # This is a simple approach - we could make it more sophisticated
-            if "\\end{itemize}" in context and missing_vspace in context:
-                # This vspace likely comes after an itemize block
-                # Try to find similar itemize blocks in enhanced version
-                itemize_pattern = r"\\end\{itemize\}"
-                enhanced_matches = list(re.finditer(itemize_pattern, restored_latex))
-
-                for match in enhanced_matches:
-                    # Check if there's already a vspace after this itemize
-                    after_itemize = restored_latex[match.end() : match.end() + 20]
-                    if not re.search(vspace_pattern, after_itemize):
-                        # Insert the missing vspace
-                        insert_pos = match.end()
-                        restored_latex = (
-                            restored_latex[:insert_pos]
-                            + missing_vspace
-                            + restored_latex[insert_pos:]
-                        )
-                        logger.info(f"Restored {missing_vspace} after itemize block")
-                        break
+            for match in matches:
+                # Check if there's already a vspace after this itemize
+                after_itemize = restored_latex[match.end() : match.end() + 20]
+                if not re.search(vspace_pattern, after_itemize):
+                    # Insert the missing vspace
+                    insert_pos = match.end()
+                    restored_latex = (
+                        restored_latex[:insert_pos]
+                        + missing_vspace
+                        + restored_latex[insert_pos:]
+                    )
+                    logger.info(f"Restored {missing_vspace} after itemize block")
+                    break
 
         logger.info("=== VSPACE RESTORATION COMPLETED ===")
         return restored_latex

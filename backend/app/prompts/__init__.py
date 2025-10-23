@@ -4,6 +4,9 @@ Prompt Manager — centralized accessors for all AI prompts.
 The manager exposes typed helpers to retrieve correctly formatted prompts for
 Gemini. Using a single entry point keeps prompt text, variables, and versions
 cohesive across the app.
+
+Version: 2.0
+Last Updated: 2024-12-19
 """
 
 from .enhancement import (
@@ -39,7 +42,7 @@ class PromptManager:
             COMMON_PROMPT_TEMPLATE,
             ADVANCED_QUALITY_ASSURANCE,
             PERSONAL_PROJECTS_SLICING,
-            FACTUAL_INTEGRITY_RULES,
+            ENHANCED_FACTUAL_INTEGRITY,
         )
 
         if slice_projects:
@@ -49,7 +52,7 @@ class PromptManager:
                 job_description=job_description,
                 company_name=company_name,
                 common_template=COMMON_PROMPT_TEMPLATE,
-                factual_integrity_rules=FACTUAL_INTEGRITY_RULES,
+                factual_integrity_rules=ENHANCED_FACTUAL_INTEGRITY,
                 personal_projects_slicing=PERSONAL_PROJECTS_SLICING,
                 quality_assurance=ADVANCED_QUALITY_ASSURANCE,
             )

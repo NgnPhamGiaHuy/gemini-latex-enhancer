@@ -23,6 +23,27 @@ Instead of jumping between editors, prompt drafts, and LaTeX compilers, the app 
 -   **Progress visibility**: Backend progress endpoints and frontend hooks reduce uncertainty during longer operations.
 -   **Model discovery**: Fetch available Google Gemini models (with fallback) and choose the default or an override.
 
+
+## 🖼️ Demo / Screenshots
+
+The following screenshots demonstrate the complete CV enhancement workflow:
+
+### 1. Upload CV
+![Upload CV](./docs/images/01-upload-cv.png)
+<center><em>Upload your LaTeX CV file to begin the enhancement process</em></center>
+
+### 2. Job Details
+![Job Details](./docs/images/02-job-details.png)
+<center><em>Enter job title, company name, and job description for AI analysis</em></center>
+
+### 3. AI Analysis
+![AI Analysis](./docs/images/03-ai-analysis.png)
+<center><em>Review AI-powered alignment suggestions and CV enhancement recommendations</em></center>
+
+### 4. Download Results
+![Download Results](./docs/images/04-download-results.png)
+<center><em>Download enhanced LaTeX files and compiled PDFs for your tailored CV</em></center>
+
 ## ⚙️ Installation
 
 This repository contains a Next.js frontend (`frontend/`) and a FastAPI backend (`backend/`). You can run them with the provided cross‑platform dev scripts or manually.

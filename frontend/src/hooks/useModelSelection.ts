@@ -22,10 +22,7 @@ const useModelSelection = ({
             setIsLoading(true);
             setError(null);
 
-            console.log("=== FETCHING AI MODELS ===");
             const response: ModelsResponse = await fetchAvailableModels();
-
-            console.log("✅ Models fetched successfully:", response);
 
             setModels(response.models);
             setDefaultModel(response.default_model);
@@ -34,8 +31,6 @@ const useModelSelection = ({
                 setSelectedModelState(response.default_model);
                 onModelChange?.(response.default_model);
             }
-
-            console.log("=== MODELS LOADED ===");
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : "Failed to fetch models";
@@ -54,14 +49,8 @@ const useModelSelection = ({
 
     const setSelectedModel = useCallback(
         (modelId: string) => {
-            console.log("=== MODEL SELECTION CHANGED ===");
-            console.log("Previous model:", selectedModel);
-            console.log("New model:", modelId);
-
             setSelectedModelState(modelId);
             onModelChange?.(modelId);
-
-            console.log("✅ Model selection updated");
         },
         [selectedModel, onModelChange]
     );

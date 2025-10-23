@@ -77,9 +77,9 @@ export const FileUploadZone = ({
                         <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">
                             {title}
                         </h3>
-                        <p className="text-xs sm:text-sm lg:text-base text-foreground max-w-md px-2">
+                        <div className="text-xs sm:text-sm lg:text-base text-foreground max-w-md px-2">
                             {description}
-                        </p>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">

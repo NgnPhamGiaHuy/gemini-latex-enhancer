@@ -73,11 +73,13 @@ export interface EnhancerResultsActions {
 export interface EnhancerCVContentState {
     originalLatexContent: string;
     sections: import("@/lib/api").Section[];
+    originalFilename: string;
 }
 
 export interface EnhancerCVContentActions {
     setOriginalLatexContent: (value: string) => void;
     setSections: (value: import("@/lib/api").Section[]) => void;
+    setOriginalFilename: (value: string) => void;
     resetCVContent: () => void;
 }
 
@@ -87,6 +89,7 @@ export interface EnhancementParams {
     jobDescription: string;
     companyName: string;
     originalLatexContent: string;
+    originalFilename: string;
     modelId?: string;
     sliceProjects?: boolean;
 }
@@ -145,6 +148,7 @@ export interface UploadData {
     sessionId: string;
     sections: import("@/lib/api").Section[];
     latexContent: string;
+    originalFilename: string;
 }
 
 export interface UseFileUploadProps {
@@ -190,6 +194,7 @@ export interface AlignStepProps {
     ) => void;
     sessionId: string | null;
     originalLatexContent: string;
+    originalFilename: string;
     onBatchJobDetailsExtracted?: (jobDetails: {
         jobTitle: string;
         jobDescription: string;
@@ -222,6 +227,7 @@ export interface UploadStepProps {
         sessionId: string;
         sections: import("@/lib/api").Section[];
         latexContent: string;
+        originalFilename: string;
     }) => void;
     onLoadingChange: (
         loading: boolean,
@@ -259,7 +265,7 @@ export interface FileUploadZoneProps {
     className?: string;
     accept?: string;
     title?: string;
-    description?: string;
+    description?: string | React.ReactNode;
     processingText?: string;
 }
 

@@ -15,12 +15,17 @@ from app.config import settings
 
 
 def _sanitize_name(name: str) -> str:
-    """Sanitize a folder/file name to avoid illegal characters and whitespace."""
+    """Sanitize a folder/file name to avoid illegal characters and ensure LaTeX compatibility."""
     if not name:
         return ""
-    # Replace forbidden characters and collapse whitespace
-    cleaned = re.sub(r"[\\/:*?\"<>|]+", "-", name)
-    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    # Remove parentheses and other non-critical special characters
+    cleaned = re.sub(r"[()\[\]{}~`!@#$%^&+=,;']+", "", name)
+    # Replace forbidden filesystem characters with hyphens
+    cleaned = re.sub(r"[\\/:*?\"<>|]+", "-", cleaned)
+    # Replace spaces with hyphens for LaTeX compatibility
+    cleaned = re.sub(r"\s+", "-", cleaned)
+    # Remove any leading/trailing hyphens
+    cleaned = cleaned.strip("-")
     return cleaned
 
 
@@ -66,6 +71,31 @@ class OutputManager:
         else:
             base_name = f"{base} - {title_part}"
         return f"{base_name}.tex", f"{base_name}.pdf"
+
+    @staticmethod
+    def build_result_filenames_with_original_name(
+        original_filename: str, company_name: str, job_title: str
+    ) -> Tuple[str, str]:
+        """Return `.tex` and `.pdf` filenames using format: Filename-Job title-Company name(if have)."""
+        # Remove .tex extension if present and sanitize base name
+        base_name = (
+            original_filename.replace(".tex", "")
+            if original_filename.endswith(".tex")
+            else original_filename
+        )
+        base_name = _sanitize_name(base_name)
+
+        # Sanitize job title and company name for filesystem compatibility
+        job_title_clean = _sanitize_name(job_title)
+        company_name_clean = _sanitize_name(company_name) if company_name else None
+
+        # Build filename in format: Filename-Job title-Company name(if have)
+        if company_name_clean:
+            final_name = f"{base_name}-{job_title_clean}-{company_name_clean}"
+        else:
+            final_name = f"{base_name}-{job_title_clean}"
+
+        return f"{final_name}.tex", f"{final_name}.pdf"
 
     @staticmethod
     def zip_folder(main_folder: str) -> str:

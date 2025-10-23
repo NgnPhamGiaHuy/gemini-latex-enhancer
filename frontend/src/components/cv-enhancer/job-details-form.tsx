@@ -16,6 +16,21 @@ import { FileUploadZone } from "@/components/ui/file-upload";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Helper function for file upload description
+const getFileUploadDescription = () => (
+    <>
+        Drag and drop your{" "}
+        <code className="px-1 py-0.5 bg-white nb-border text-xs">
+            .csv
+        </code>{" "}
+        or{" "}
+        <code className="px-1 py-0.5 bg-white nb-border text-xs">
+            .json
+        </code>{" "}
+        file here, or click to browse
+    </>
+);
+
 const JobDetailsForm = ({
     jobTitle,
     setJobTitle,
@@ -262,21 +277,7 @@ const JobDetailsForm = ({
                                     isLoading={false}
                                     accept=".csv,.json"
                                     title="Upload your job file"
-                                    description={
-                                        (
-                                            <>
-                                                Drag and drop your{" "}
-                                                <code className="px-1 py-0.5 bg-white nb-border text-xs">
-                                                    .csv
-                                                </code>{" "}
-                                                or{" "}
-                                                <code className="px-1 py-0.5 bg-white nb-border text-xs">
-                                                    .json
-                                                </code>{" "}
-                                                file here, or click to browse
-                                            </>
-                                        ) as unknown as string
-                                    }
+                                    description={getFileUploadDescription()}
                                     processingText="Reading file..."
                                 />
                             )}

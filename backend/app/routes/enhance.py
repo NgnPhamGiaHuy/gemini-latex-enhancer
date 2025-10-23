@@ -27,6 +27,7 @@ async def enhance_cv(
     job_description: str = Form(...),
     company_name: str = Form(None),
     latex_content: str = Form(...),
+    original_filename: str = Form(None),
     model_id: str = Form(None),
     slice_projects: bool = Form(False),
 ):
@@ -38,6 +39,7 @@ async def enhance_cv(
         job_description: Full job description text.
         company_name: Optional company/employer name.
         latex_content: Raw LaTeX CV content to enhance.
+        original_filename: Original filename of the uploaded CV.
         model_id: Optional model override; defaults to system config.
         slice_projects: If True, select the most relevant personal projects only.
 
@@ -76,7 +78,12 @@ async def enhance_cv(
             )
 
         # Save enhanced LaTeX
-        tex_path = FileService.save_result(enhanced_latex, "cv")
+        if original_filename:
+            tex_path = FileService.save_result_with_job_info(
+                enhanced_latex, original_filename, job_title, company_name
+            )
+        else:
+            tex_path = FileService.save_result(enhanced_latex, "cv")
 
         # Compile to PDF
         pdf_path = LatexService.compile_to_pdf(tex_path)
@@ -118,6 +125,7 @@ async def enhance_cv(
 async def enhance_cv_batch(
     session_id: str = Form(...),
     latex_content: str = Form(...),
+    original_filename: str = Form(None),
     model_id: Optional[str] = Form(None),
     job_file: UploadFile = File(...),
     slice_projects: bool = Form(False),
@@ -154,7 +162,9 @@ async def enhance_cv_batch(
         ai_service = AIService(model_id=model_id)
 
         # Derive original CV base name for output naming
-        original_cv_name = "OriginalCV"
+        original_cv_name = (
+            original_filename.replace(".tex", "") if original_filename else "OriginalCV"
+        )
         results = []
 
         for idx, job in enumerate(jobs, start=1):
@@ -173,9 +183,16 @@ async def enhance_cv_batch(
                 subfolder = OutputManager.create_job_subfolder(
                     main_folder, job.get("company_name"), job["job_title"]
                 )
-                tex_name, pdf_name = OutputManager.build_result_filenames(
-                    original_cv_name, job.get("company_name"), job["job_title"]
-                )
+                if original_filename:
+                    tex_name, pdf_name = (
+                        OutputManager.build_result_filenames_with_original_name(
+                            original_filename, job.get("company_name"), job["job_title"]
+                        )
+                    )
+                else:
+                    tex_name, pdf_name = OutputManager.build_result_filenames(
+                        original_cv_name, job.get("company_name"), job["job_title"]
+                    )
 
                 tex_path = os.path.join(subfolder, tex_name)
                 with open(tex_path, "w", encoding="utf-8") as f:

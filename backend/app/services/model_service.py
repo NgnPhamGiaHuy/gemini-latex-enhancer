@@ -86,16 +86,22 @@ class ModelService:
         """Extract a simple semantic version from a model name/id string."""
         model_id = model_name.replace("models/", "")
 
-        if "2.5" in model_id:
-            return "2.5"
-        elif "2.0" in model_id:
-            return "2.0"
-        elif "1.5" in model_id:
-            return "1.5"
-        elif "1.0" in model_id:
-            return "1.0"
-        else:
-            return "Unknown"
+        # Configurable version patterns
+        version_patterns = [
+            ("2.5", "2.5"),
+            ("2.0", "2.0"),
+            ("1.5", "1.5"),
+            ("1.0", "1.0"),
+            ("pro", "Pro"),
+            ("flash", "Flash"),
+            ("latest", "Latest"),
+        ]
+
+        for pattern, version in version_patterns:
+            if pattern in model_id.lower():
+                return version
+
+        return "Unknown"
 
     def _get_fallback_models(self) -> List[Dict]:
         """Return a hardcoded fallback list when the API is unavailable."""

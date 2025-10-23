@@ -69,11 +69,27 @@ KEY_MAPPINGS = {
 
 
 class KeyNormalizer:
-    """Utility class for normalizing field names across different formats."""
+    """Optimized utility class for normalizing field names with O(1) lookup."""
+
+    # Pre-computed lookup table for O(1) access
+    _NORMALIZED_LOOKUP: Dict[str, str] = {}
+    _LOOKUP_BUILT = False
+
+    @classmethod
+    def _build_lookup_table(cls):
+        """Build normalized lookup table once for optimal performance."""
+        if not cls._LOOKUP_BUILT:
+            for canonical_field, variations in KEY_MAPPINGS.items():
+                for variation in variations:
+                    normalized_variation = (
+                        variation.lower().replace(" ", "_").replace("-", "_")
+                    )
+                    cls._NORMALIZED_LOOKUP[normalized_variation] = canonical_field
+            cls._LOOKUP_BUILT = True
 
     @staticmethod
     def normalize_key(key: str) -> str:
-        """Normalize a key to its canonical form.
+        """Normalize a key to its canonical form with O(1) lookup.
 
         Args:
             key: The input key to normalize
@@ -84,16 +100,10 @@ class KeyNormalizer:
         if not key:
             return key
 
-        # Clean the key
+        KeyNormalizer._build_lookup_table()
+
         clean_key = key.strip().lower().replace(" ", "_").replace("-", "_")
-
-        # Check each canonical field's possible variations
-        for canonical_field, variations in KEY_MAPPINGS.items():
-            for variation in variations:
-                if clean_key == variation.lower().replace(" ", "_").replace("-", "_"):
-                    return canonical_field
-
-        return clean_key
+        return KeyNormalizer._NORMALIZED_LOOKUP.get(clean_key, clean_key)
 
     @staticmethod
     def normalize_dict(data: Dict[str, str]) -> Dict[str, str]:
