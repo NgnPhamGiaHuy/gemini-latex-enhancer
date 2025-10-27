@@ -17,6 +17,7 @@ from typing import Optional
 from fastapi import UploadFile, HTTPException
 from app.config import settings
 from app.utils.logger import get_logger
+from app.utils.filename_sanitizer import sanitize_filename_for_filesystem
 
 logger = get_logger(__name__)
 
@@ -26,9 +27,9 @@ class FileService:
 
     @staticmethod
     def ensure_directories():
-        """Create upload and output directories when missing."""
+        """Create upload and session output directories when missing."""
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-        os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+        os.makedirs(settings.SESSION_OUTPUT_DIR, exist_ok=True)
 
     @staticmethod
     def save_uploaded_file(file: UploadFile) -> str:
@@ -186,7 +187,7 @@ class FileService:
             # Generate unique filename
             file_id = str(uuid.uuid4())
             result_path = os.path.join(
-                settings.OUTPUT_DIR, f"{base_name}_{file_id}.tex"
+                settings.SESSION_OUTPUT_DIR, f"{base_name}_{file_id}.tex"
             )
 
             # Save enhanced content
@@ -222,7 +223,7 @@ class FileService:
             FileService.ensure_directories()
 
             # Use original filename directly
-            result_path = os.path.join(settings.OUTPUT_DIR, original_filename)
+            result_path = os.path.join(settings.SESSION_OUTPUT_DIR, original_filename)
 
             # Save enhanced content
             with open(result_path, "w", encoding="utf-8") as f:
@@ -244,7 +245,7 @@ class FileService:
         original_filename: str,
         job_title: str,
         company_name: str = None,
-    ) -> str:
+    ) -> tuple[str, str]:
         """Write enhanced LaTeX content using format: Filename-Job title-Company name(if have).
 
         Args:
@@ -254,7 +255,7 @@ class FileService:
             company_name: Optional company name.
 
         Returns:
-            Absolute path to the created `.tex` file within outputs.
+            Tuple of (absolute_path_to_file, clean_filename_for_download).
 
         Raises:
             HTTPException: If writing fails.
@@ -268,46 +269,34 @@ class FileService:
                 if original_filename.endswith(".tex")
                 else original_filename
             )
-            # Remove parentheses and other non-critical special characters
-            base_name = re.sub(r"[()\[\]{}~`!@#$%^&+=,;']+", "", base_name)
-            # Replace forbidden filesystem characters with hyphens
-            base_name = re.sub(r"[\\/:*?\"<>|]+", "-", base_name)
-            base_name = re.sub(r"\s+", "-", base_name)
-            base_name = base_name.strip("-")
+            base_name = sanitize_filename_for_filesystem(base_name)
 
             # Sanitize job title and company name for filesystem compatibility
-            # Remove parentheses and other non-critical special characters
-            job_title_clean = re.sub(r"[()\[\]{}~`!@#$%^&+=,;']+", "", job_title)
-            # Replace forbidden filesystem characters with hyphens
-            job_title_clean = re.sub(r"[\\/:*?\"<>|]+", "-", job_title_clean)
-            job_title_clean = re.sub(r"\s+", "-", job_title_clean)
-            job_title_clean = job_title_clean.strip("-")
+            job_title_clean = sanitize_filename_for_filesystem(job_title)
 
             company_name_clean = None
             if company_name:
-                # Remove parentheses and other non-critical special characters
-                company_name_clean = re.sub(
-                    r"[()\[\]{}~`!@#$%^&+=,;']+", "", company_name
-                )
-                # Replace forbidden filesystem characters with hyphens
-                company_name_clean = re.sub(r"[\\/:*?\"<>|]+", "-", company_name_clean)
-                company_name_clean = re.sub(r"\s+", "-", company_name_clean)
-                company_name_clean = company_name_clean.strip("-")
+                company_name_clean = sanitize_filename_for_filesystem(company_name)
 
-            # Build filename in format: Filename-Job title-Company name(if have)
+            # Build clean filename for download (without unique ID)
             if company_name_clean:
-                final_name = f"{base_name}-{job_title_clean}-{company_name_clean}"
+                clean_name = f"{base_name}-{job_title_clean}-{company_name_clean}"
             else:
-                final_name = f"{base_name}-{job_title_clean}"
+                clean_name = f"{base_name}-{job_title_clean}"
 
-            result_path = os.path.join(settings.OUTPUT_DIR, f"{final_name}.tex")
+            # Generate unique filename with timestamp to prevent caching issues
+            unique_id = str(uuid.uuid4())[:8]  # Use first 8 chars of UUID for brevity
+            unique_name = f"{clean_name}-{unique_id}"
+
+            result_path = os.path.join(settings.SESSION_OUTPUT_DIR, f"{unique_name}.tex")
 
             # Save enhanced content
             with open(result_path, "w", encoding="utf-8") as f:
                 f.write(latex_content)
 
             logger.info(f"Enhanced CV saved with job info: {result_path}")
-            return result_path
+            logger.info(f"Clean filename for download: {clean_name}.tex")
+            return result_path, f"{clean_name}.tex"
 
         except Exception as e:
             logger.error(f"Failed to save result with job info: {str(e)}")
@@ -318,7 +307,7 @@ class FileService:
     @staticmethod
     def get_relative_path(absolute_path: str) -> str:
         """Convert an absolute path under outputs to a client-facing relative path."""
-        return os.path.relpath(absolute_path, settings.OUTPUT_DIR)
+        return os.path.relpath(absolute_path, settings.SESSION_OUTPUT_DIR)
 
     @staticmethod
     def cleanup_file(file_path: str):

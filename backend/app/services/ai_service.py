@@ -11,11 +11,12 @@ The service exposes one primary capability:
 """
 
 import re
+import time
 import google.generativeai as genai
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from fastapi import HTTPException
 from app.config import settings
-from app.utils.logger import get_logger
+from app.utils.logger import get_logger, session_prompt_logger
 from app.prompts import PromptManager
 
 logger = get_logger(__name__)
@@ -85,7 +86,11 @@ class AIService:
             raise
 
     def enhance_cv(
-        self, latex_content: str, job_data: Dict[str, Any], slice_projects: bool = False
+        self, 
+        latex_content: str, 
+        job_data: Dict[str, Any], 
+        slice_projects: bool = False,
+        session_id: Optional[str] = None
     ) -> str:
         """Enhance a LaTeX CV for a specific job context.
 
@@ -99,6 +104,7 @@ class AIService:
                 `job_description`. May include `company_name`.
             slice_projects: When True, instructs the prompt to intelligently
                 select a subset of personal projects based on relevance.
+            session_id: Optional session identifier for tracking requests.
 
         Returns:
             A full LaTeX document string intended to compile without changes.
@@ -106,16 +112,37 @@ class AIService:
         Raises:
             HTTPException: If model invocation or cleaning fails.
         """
+        start_time = time.time()
+        
         try:
+            # Generate the prompt
             prompt = PromptManager.get_enhancement_prompt(
                 latex_content=latex_content,
                 job_title=job_data.get("job_title"),
                 job_description=job_data.get("job_description"),
                 company_name=job_data.get("company_name", "N/A"),
-                use_advanced=settings.USE_ADVANCED_PROMPT,
                 slice_projects=slice_projects,
             )
 
+            # Determine prompt type for logging
+            prompt_type = "enhancement_with_slicing" if slice_projects else "enhancement"
+            
+            # Log the complete session prompt request in JSON format (if enabled)
+            if settings.ENABLE_PROMPT_LOGGING:
+                session_prompt_logger.log_prompt_request(
+                    prompt_type=prompt_type,
+                    job_title=job_data.get("job_title", "N/A"),
+                    job_description=job_data.get("job_description", "N/A"),
+                    company_name=job_data.get("company_name", "N/A"),
+                    slice_projects=slice_projects,
+                    prompt_content=prompt,
+                    prompt_length=len(prompt),
+                    model_id=self.model_id,
+                    session_id=session_id
+                )
+
+            # Generate AI response
+            logger.info(f"Generating AI response using model: {self.model_id}")
             response = self.model.generate_content(prompt)
             enhanced_latex = response.text
 
@@ -127,11 +154,39 @@ class AIService:
                 enhanced_latex, latex_content
             )
 
-            logger.info("CV enhancement completed successfully")
+            # Calculate processing time
+            processing_time = time.time() - start_time
+
+            # Log the successful session prompt response in JSON format (if enabled)
+            if settings.ENABLE_PROMPT_LOGGING:
+                session_prompt_logger.log_prompt_response(
+                    response_content=enhanced_latex,
+                    response_length=len(enhanced_latex),
+                    processing_time=processing_time,
+                    model_id=self.model_id,
+                    session_id=session_id,
+                    success=True
+                )
+
+            logger.info(f"CV enhancement completed successfully in {processing_time:.2f}s")
             return enhanced_latex
 
         except Exception as e:
-            logger.error(f"CV enhancement failed: {str(e)}")
+            processing_time = time.time() - start_time
+            
+            # Log the error session prompt response in JSON format (if enabled)
+            if settings.ENABLE_PROMPT_LOGGING:
+                session_prompt_logger.log_prompt_response(
+                    response_content="",
+                    response_length=0,
+                    processing_time=processing_time,
+                    model_id=self.model_id,
+                    session_id=session_id,
+                    success=False,
+                    error_message=str(e)
+                )
+            
+            logger.error(f"CV enhancement failed after {processing_time:.2f}s: {str(e)}")
             raise HTTPException(
                 status_code=500, detail=f"AI enhancement failed: {str(e)}"
             )

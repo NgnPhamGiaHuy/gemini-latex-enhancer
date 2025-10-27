@@ -79,11 +79,12 @@ async def enhance_cv(
 
         # Save enhanced LaTeX
         if original_filename:
-            tex_path = FileService.save_result_with_job_info(
+            tex_path, clean_tex_filename = FileService.save_result_with_job_info(
                 enhanced_latex, original_filename, job_title, company_name
             )
         else:
             tex_path = FileService.save_result(enhanced_latex, "cv")
+            clean_tex_filename = os.path.basename(tex_path)
 
         # Compile to PDF
         pdf_path = LatexService.compile_to_pdf(tex_path)
@@ -101,15 +102,26 @@ async def enhance_cv(
         tex_relative = FileService.get_relative_path(tex_path)
         pdf_relative = FileService.get_relative_path(pdf_path) if pdf_path else None
 
+        # Generate clean PDF filename for download (convert .tex to .pdf)
+        clean_pdf_filename = None
+        if pdf_path and clean_tex_filename:
+            # Convert the clean LaTeX filename to PDF filename
+            clean_pdf_filename = clean_tex_filename.replace(".tex", ".pdf")
+
         logger.info(f"CV enhanced successfully. Session ID: {session_id}")
         logger.info(f"LaTeX file: {tex_relative}")
         logger.info(f"PDF file: {pdf_relative}")
+        logger.info(
+            f"Clean filenames - LaTeX: {clean_tex_filename}, PDF: {clean_pdf_filename}"
+        )
 
         return ResponseBuilder.success_response(
             data={
                 "session_id": session_id,
                 "tex_path": tex_relative,
                 "pdf_path": pdf_relative,
+                "clean_tex_filename": clean_tex_filename,
+                "clean_pdf_filename": clean_pdf_filename,
             },
             message="CV enhanced successfully",
         )

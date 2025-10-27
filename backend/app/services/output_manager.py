@@ -12,21 +12,12 @@ from typing import Tuple
 from datetime import datetime
 
 from app.config import settings
+from app.utils.filename_sanitizer import sanitize_filename_for_filesystem
 
 
 def _sanitize_name(name: str) -> str:
-    """Sanitize a folder/file name to avoid illegal characters and ensure LaTeX compatibility."""
-    if not name:
-        return ""
-    # Remove parentheses and other non-critical special characters
-    cleaned = re.sub(r"[()\[\]{}~`!@#$%^&+=,;']+", "", name)
-    # Replace forbidden filesystem characters with hyphens
-    cleaned = re.sub(r"[\\/:*?\"<>|]+", "-", cleaned)
-    # Replace spaces with hyphens for LaTeX compatibility
-    cleaned = re.sub(r"\s+", "-", cleaned)
-    # Remove any leading/trailing hyphens
-    cleaned = cleaned.strip("-")
-    return cleaned
+    """Sanitize a folder/file name using Unicode-safe sanitization."""
+    return sanitize_filename_for_filesystem(name)
 
 
 class OutputManager:
@@ -34,10 +25,10 @@ class OutputManager:
 
     @staticmethod
     def create_main_output_folder() -> str:
-        """Create a timestamped main folder under the outputs directory."""
+        """Create a timestamped main folder under the session outputs directory."""
         ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         folder_name = f"Enhanced_CVs_{ts}"
-        base_dir = os.path.join(settings.OUTPUT_DIR)
+        base_dir = os.path.join(settings.SESSION_OUTPUT_DIR)
         os.makedirs(base_dir, exist_ok=True)
         full_path = os.path.join(base_dir, folder_name)
         os.makedirs(full_path, exist_ok=True)
@@ -67,9 +58,9 @@ class OutputManager:
         title_part = _sanitize_name(job_title)
         base = _sanitize_name(original_cv_name)
         if company_part:
-            base_name = f"{base} - {company_part} - {title_part}"
+            base_name = f"{base}-{title_part}-{company_part}"
         else:
-            base_name = f"{base} - {title_part}"
+            base_name = f"{base}-{title_part}"
         return f"{base_name}.tex", f"{base_name}.pdf"
 
     @staticmethod

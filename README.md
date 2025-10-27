@@ -213,7 +213,6 @@ GEMINI_API_KEY=your_google_gemini_api_key
 
 # Optional
 AI_MODEL=gemini-2.5-flash
-USE_ADVANCED_PROMPT=true
 ```
 
 Frontend API base URL:

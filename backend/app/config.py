@@ -24,13 +24,38 @@ class Settings:
     # AI Service Configuration
     GEMINI_API_KEY: Optional[str] = os.getenv("GEMINI_API_KEY")
     AI_MODEL: str = os.getenv("AI_MODEL", "gemini-2.5-flash")
-    USE_ADVANCED_PROMPT: bool = (
-        os.getenv("USE_ADVANCED_PROMPT", "true").lower() == "true"
+
+    # Session Logging Configuration
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    LOG_FORMAT: str = os.getenv("LOG_FORMAT", "text")  # "text" or "json"
+    ENABLE_PROMPT_LOGGING: bool = (
+        os.getenv("ENABLE_PROMPT_LOGGING", "true").lower() == "true"
     )
+    SESSION_LOG_DIR: str = os.getenv("SESSION_LOG_DIR", "logs")
+    
+    # Session Log Cleanup Configuration
+    CLEANUP_SESSION_LOGS_ON_STARTUP: bool = (
+        os.getenv("CLEANUP_SESSION_LOGS_ON_STARTUP", "true").lower() == "true"
+    )
+    CLEANUP_SESSION_LOGS_ON_SHUTDOWN: bool = (
+        os.getenv("CLEANUP_SESSION_LOGS_ON_SHUTDOWN", "true").lower() == "true"
+    )
+    SESSION_LOG_RETENTION_DAYS: int = int(os.getenv("SESSION_LOG_RETENTION_DAYS", "7"))
+
+    # Session Output Configuration
+    SESSION_OUTPUT_DIR: str = os.getenv("SESSION_OUTPUT_DIR", "outputs")
+    
+    # Session Output Cleanup Configuration
+    CLEANUP_SESSION_OUTPUTS_ON_STARTUP: bool = (
+        os.getenv("CLEANUP_SESSION_OUTPUTS_ON_STARTUP", "true").lower() == "true"
+    )
+    CLEANUP_SESSION_OUTPUTS_ON_SHUTDOWN: bool = (
+        os.getenv("CLEANUP_SESSION_OUTPUTS_ON_SHUTDOWN", "true").lower() == "true"
+    )
+    SESSION_OUTPUT_RETENTION_DAYS: int = int(os.getenv("SESSION_OUTPUT_RETENTION_DAYS", "7"))
 
     # File Storage Configuration
     UPLOAD_DIR: str = "uploads"
-    OUTPUT_DIR: str = "outputs"
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
 
     # LaTeX Configuration
