@@ -5,8 +5,8 @@ The manager exposes typed helpers to retrieve correctly formatted prompts for
 Gemini. Using a single entry point keeps prompt text, variables, and versions
 cohesive across the app.
 
-Version: 2.1
-Last Updated: 2025-01-27
+Version: 2.0
+Last Updated: 2025-10-27
 """
 
 from .enhancement import (
