@@ -1,0 +1,2 @@
+# Maintenance infrastructure adapters
+from app.infrastructure.maintenance.cleanup_service_adapter import LocalCleanupService

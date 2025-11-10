@@ -1,12 +1,12 @@
 """
-Prompt Manager — centralized accessors for all AI prompts.
+Prompt manager — centralized accessors for all AI prompts.
 
-The manager exposes typed helpers to retrieve correctly formatted prompts for
-Gemini. Using a single entry point keeps prompt text, variables, and versions
-cohesive across the app.
+Exposes typed helpers to retrieve correctly formatted prompts for Gemini. A
+single entry point keeps prompt text, variables, and versions cohesive across
+the application.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
 from .enhancement import (
@@ -16,7 +16,7 @@ from .enhancement import (
 
 
 class PromptManager:
-    """Manages all AI prompts for different tasks."""
+    """Manage AI prompts for enhancement tasks."""
 
     @staticmethod
     def get_enhancement_prompt(
@@ -26,14 +26,14 @@ class PromptManager:
         company_name: str = "N/A",
         slice_projects: bool = False,
     ) -> str:
-        """Return the enhancement prompt with optional slicing variant.
+        """Return the enhancement prompt with an optional slicing variant.
 
         Args:
-            latex_content: Raw LaTeX CV.
+            latex_content: Raw LaTeX CV content.
             job_title: Target job title.
             job_description: Full job description text.
             company_name: Optional employer name used for tailoring.
-            slice_projects: Use the variant that selects relevant projects only.
+            slice_projects: Whether to use the variant that selects only relevant projects.
         """
         from .shared_template import (
             COMBINED_PROMPT_TEMPLATE,
@@ -54,7 +54,7 @@ class PromptManager:
                 quality_assurance=ADVANCED_QUALITY_ASSURANCE,
             )
         else:
-            # Use standard prompt (default behavior)
+            # Use the standard prompt (default behavior)
             return CV_ENHANCEMENT_PROMPT.format(
                 latex_content=latex_content,
                 job_title=job_title,
@@ -66,7 +66,7 @@ class PromptManager:
 
     @staticmethod
     def list_available_prompts() -> list:
-        """List all available prompt identifiers for diagnostics and UI."""
+        """List available prompt identifiers for diagnostics and UI."""
         return [
             "enhancement",
             "enhancement_with_slicing",

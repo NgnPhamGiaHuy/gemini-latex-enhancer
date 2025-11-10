@@ -1,14 +1,13 @@
 """
-Shared Prompt Template for CV Enhancement
+Shared prompt template for CV enhancement.
 
-This module imports and combines all prompt sections from organized modules
-to create the main templates used by CV enhancement prompts.
+This module imports and consolidates prompt sections from specialized modules
+to compose the primary templates used by the CV enhancement prompts.
 
-All common sections are imported from specialized modules and combined
-into templates for easy injection into individual prompt variants.
+Common sections are assembled into templates for reuse across individual prompt variants.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
 # Import core requirements
@@ -57,8 +56,20 @@ from .slicing_rules import (
     PERSONAL_PROJECTS_SLICING,
 )
 
-# Combined template that includes both specialist framework and common requirements
-# This single template is used across all three enhancement prompts
+# Lightweight framework to ensure consistent job‑description analysis across prompts
+JOB_DESCRIPTION_ANALYSIS = """
+## 🧭 JOB DESCRIPTION ANALYSIS FRAMEWORK
+- Extract MUST-have and NICE-to-have requirements from the job description
+- Build a skill taxonomy (Languages, Frameworks, Tools, Databases, Cloud, Methodologies, Domains)
+- Capture role scope indicators (seniority, responsibilities, impact expectations)
+- Create a prioritized keyword list preserving exact JD phrasing (MUST items first)
+- Maintain a synonym normalization map aligning CV terminology with JD terminology
+- Build a traceability matrix linking JD requirements to verifiable CV evidence (mark "no evidence" when missing)
+- Prioritize MUST-have coverage while never fabricating information; use conservative wording when evidence is partial
+"""
+
+# Combined template including specialist frameworks and common requirements.
+# This template is reused across all enhancement prompt variants.
 COMBINED_PROMPT_TEMPLATE = f"""
 {TAG_FRAMEWORK}
 
@@ -81,6 +92,8 @@ COMBINED_PROMPT_TEMPLATE = f"""
 {RTF_FRAMEWORK}
 
 {DOCUMENT_STRUCTURE_ANALYSIS}
+
+{JOB_DESCRIPTION_ANALYSIS}
 
 {ANTI_HALLUCINATION_GUARDRAILS}
 

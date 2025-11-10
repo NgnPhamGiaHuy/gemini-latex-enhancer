@@ -24,7 +24,7 @@ const ModelSelectionHeader: React.FC<ModelSelectionHeaderProps> = ({
 }) => {
     return (
         <CardHeader
-            className="pb-3 cursor-pointer select-none"
+            className="pb-2 cursor-pointer select-none"
             onClick={() => setIsExpanded(!isExpanded)}
         >
             <div className="flex items-center justify-between">

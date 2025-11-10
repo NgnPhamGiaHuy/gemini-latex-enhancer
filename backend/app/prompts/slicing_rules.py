@@ -1,14 +1,14 @@
 """
-Slicing Rules for Advanced CV Enhancement
+Project slicing rules for advanced CV enhancement.
 
-This module contains project slicing strategies and advanced features
-for specialized CV enhancement operations.
+Provides project‑selection strategies and advanced controls for specialized
+CV enhancement operations.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
-# Personal projects slicing (for slicing prompt)
+# Personal‑projects slicing (for slicing prompt variants)
 PERSONAL_PROJECTS_SLICING = """
 ### 🚫 MANDATORY PROJECT SLICING REQUIREMENT
 You MUST strictly limit the number of personal projects based on the total count in the original CV. This is NON-NEGOTIABLE and takes absolute precedence over other guidelines.
@@ -74,6 +74,13 @@ For each project, calculate a numerical score (1-10) using these criteria:
 - **Project Complexity (0-2 points):** Does the project complexity match the level expected by the job?
 - **Industry Relevance (0-2 points):** How relevant is the project domain to the target role/industry?
 - **Skill Demonstration (0-2 points):** Does the project showcase skills explicitly mentioned in the job description?
+
+**Job-Driven Weighting Adjustments:**
+- Apply the Job Alignment Plan derived from the job description:
+  - Projects covering MUST-have requirements receive a +1 relevance bonus (cap total score at 10)
+  - Projects covering NICE-to-have requirements receive a +0.5 relevance bonus (cap total score at 10)
+  - When scores tie, prefer projects mapping to a higher number of distinct MUST-have requirements
+- Never claim coverage for JD items without CV evidence; bonus applies only when evidence is present in the project description.
 
 **Example Scoring:**
 - Project using 80% matching tech stack + medium complexity + relevant industry + demonstrates 3/5 key skills = Score: 4+1+1+2 = 8/10

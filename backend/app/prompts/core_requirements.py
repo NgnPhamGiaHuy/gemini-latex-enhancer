@@ -1,14 +1,14 @@
 """
-Core Requirements for CV Enhancement Prompts
+Core requirements for CV enhancement prompts.
 
-This module contains the fundamental output requirements and LaTeX safety rules
-that are essential for all CV enhancement operations.
+Defines fundamental output requirements and LaTeX safety rules that are essential
+for all CV enhancement operations.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
-# Core output requirements - highest priority
+# Core output requirements — highest priority
 CORE_OUTPUT_REQUIREMENTS = """
 ### CRITICAL OUTPUT REQUIREMENTS - HIGHEST PRIORITY
 
@@ -71,6 +71,10 @@ LATEX_COMPILATION_SAFETY = """
 - Escape: # → \\#
 - Escaped characters MUST compile without errors
 
+**Absolute Rule on Ampersands (&):**
+- Never emit raw '&' outside a tabular/matrix environment
+- If you need the literal character in text, ALWAYS use \\&
+
 **Requirement 2: Safe Character Usage**
 - Use -- for em-dash (not \\textasciimdash)
 - Use ~ for non-breaking space when needed
@@ -106,7 +110,7 @@ LATEX_COMPILATION_SAFETY = """
 - If you see numbered references, replace with actual content
 """
 
-# Execution rules (priority and editing discipline)
+# Execution rules (priority and editorial discipline)
 EXECUTION_RULES = """
 ### EXECUTION RULES - PRIORITY HIERARCHY
 
@@ -130,7 +134,10 @@ EXECUTION_RULES = """
 
 **Category C: Job Alignment (Strategic Enhancement)**
 - **Job-Term Mirroring:** Mirror exact phrasing of top job keywords naturally; avoid keyword stuffing
+- **Alignment Plan Discipline:** Build and reference a Job Alignment Plan (MUST vs NICE requirements, keyword list, traceability matrix) before rewriting
+- **Evidence-First Claims:** Never claim coverage for JD requirements without verifiable CV evidence; prefer conservative, transferable phrasing when evidence is partial
 - **ATS Readability:** Prefer simple sentences and standard headings
+- **Synonym Normalization:** Map CV terminology to JD terminology using the alignment plan to maintain authenticity while matching phrasing
 - **Tables Avoidance:** Avoid tables for core content unless already present in source
 - **Tense Consistency:** Past tense for completed roles, present for current roles; no first-person
 

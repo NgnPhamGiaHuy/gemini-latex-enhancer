@@ -25,7 +25,7 @@ const JobTitleInput = ({ touched, error, onBlur }: JobTitleInputProps) => {
                     value={jobTitle}
                     onChange={(e) => dispatch(setJobTitle(e.target.value))}
                     onBlur={onBlur}
-                    className="h-11"
+                    className="h-10"
                 />
             </AppTooltip>
             {touched && error && (

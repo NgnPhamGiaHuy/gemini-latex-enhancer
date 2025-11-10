@@ -39,7 +39,7 @@ const JobDetailsForm = ({ loading }: { loading: boolean }) => {
                         setMode(v as "manual" | "file")
                     }
                 >
-                    <TabsList className="grid grid-cols-2 w-full">
+                    <TabsList className="w-full grid grid-cols-2">
                         <TabsTrigger value="manual">Manual Input</TabsTrigger>
                         <TabsTrigger value="file">File Upload</TabsTrigger>
                     </TabsList>

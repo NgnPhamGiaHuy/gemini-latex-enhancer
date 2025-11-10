@@ -8,3 +8,5 @@ pydantic-settings
 aiofiles
 urllib3
 black
+pylatexenc>=2.10
+pytest

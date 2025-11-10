@@ -1,20 +1,36 @@
 """
-Enhance route for CV enhancement
+Enhance route for CV enhancement.
 """
 
-from fastapi import APIRouter, HTTPException, Form, UploadFile, File
-from app.services.ai_service import AIService
-from app.services.file_service import FileService
-from app.services.latex_service import LatexService
-from app.services.validation import ValidationService
+from typing import Optional
+
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Form,
+    UploadFile,
+    File,
+    Depends,
+    BackgroundTasks,
+)
+
+from app.application.exceptions import ApplicationError
+from app.application.use_cases.batch_enhance import BatchEnhanceUseCase
+from app.application.use_cases.enhance_cv import EnhanceCvUseCase
+from app.application.use_cases.parse_job_file import ParseJobFileUseCase
+from app.application.use_cases.save_and_compile import SaveAndCompileUseCase
+from app.domain.exceptions import DomainValidationError
+from app.interface.di import (
+    enhance_cv_use_case,
+    parse_job_use_case,
+    save_and_compile_use_case,
+    batch_enhance_use_case,
+    get_progress_tracker,
+)
+from app.application.contracts.progress_tracker import ProgressTracker
+from app.infrastructure.execution.background_job_executor import BackgroundJobExecutor
 from app.utils.response_builder import ResponseBuilder
 from app.utils.logger import get_logger
-from typing import Optional
-import os
-from app.services.job_parser import JobFileParser
-from app.services.output_manager import OutputManager
-from app.services.progress_service import ProgressService
-import uuid
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -30,6 +46,8 @@ async def enhance_cv(
     original_filename: str = Form(None),
     model_id: str = Form(None),
     slice_projects: bool = Form(False),
+    use_case: EnhanceCvUseCase = Depends(enhance_cv_use_case),
+    save_use_case: SaveAndCompileUseCase = Depends(save_and_compile_use_case),
 ):
     """Enhance a LaTeX CV for a specific job.
 
@@ -50,63 +68,37 @@ async def enhance_cv(
         HTTPException: On validation failure or enhancement/compilation errors.
     """
     try:
-        # Validate inputs
         job_data = {
             "job_title": job_title,
             "job_description": job_description,
             "company_name": company_name,
         }
-        ValidationService.validate_job_data(job_data)
-        ValidationService.validate_latex_content(latex_content)
 
-        # Initialize AI service with selected model
-        logger.info("Initializing AI service for enhancement...")
-        if model_id:
-            logger.info(f"Using selected model: {model_id}")
-        else:
-            logger.info("Using default model")
-        ai_service = AIService(model_id=model_id)
+        logger.info("Initializing enhancement pipeline via use case...")
+        enhance_result = use_case.execute(
+            latex_content=latex_content,
+            job_data=job_data,
+            session_id=session_id,
+            slice_projects=slice_projects,
+            model_id=model_id,
+        )
+        enhanced_latex = enhance_result.enhanced_document.content
 
-        # Enhance CV
-        enhanced_latex = ai_service.enhance_cv(latex_content, job_data, slice_projects)
+        sc_result = save_use_case.execute(
+            latex_content=enhanced_latex,
+            original_filename=original_filename,
+            job_title=job_title,
+            company_name=company_name,
+        )
+        tex_relative = sc_result.tex_relative_path
+        pdf_relative = sc_result.pdf_relative_path
+        clean_tex_filename = sc_result.clean_tex_filename
+        clean_pdf_filename = sc_result.clean_pdf_filename
 
-        # Validate enhanced LaTeX content
-        if not LatexService.validate_latex_content(enhanced_latex):
-            logger.error("Enhanced LaTeX content validation failed")
-            raise HTTPException(
-                status_code=500, detail="Enhanced LaTeX content is invalid"
-            )
-
-        # Save enhanced LaTeX
-        if original_filename:
-            tex_path, clean_tex_filename = FileService.save_result_with_job_info(
-                enhanced_latex, original_filename, job_title, company_name
-            )
-        else:
-            tex_path = FileService.save_result(enhanced_latex, "cv")
-            clean_tex_filename = os.path.basename(tex_path)
-
-        # Compile to PDF
-        pdf_path = LatexService.compile_to_pdf(tex_path)
-
-        if not pdf_path:
+        if not pdf_relative:
             logger.warning(
-                "PDF compilation failed, but LaTeX file was created successfully"
+                "PDF compilation failed or PDF unavailable; returning LaTeX only"
             )
-            # Continue without PDF - user can still download LaTeX file
-
-        # Clean up LaTeX auxiliary files
-        LatexService.cleanup_latex_files(tex_path)
-
-        # Get relative paths for response
-        tex_relative = FileService.get_relative_path(tex_path)
-        pdf_relative = FileService.get_relative_path(pdf_path) if pdf_path else None
-
-        # Generate clean PDF filename for download (convert .tex to .pdf)
-        clean_pdf_filename = None
-        if pdf_path and clean_tex_filename:
-            # Convert the clean LaTeX filename to PDF filename
-            clean_pdf_filename = clean_tex_filename.replace(".tex", ".pdf")
 
         logger.info(f"CV enhanced successfully. Session ID: {session_id}")
         logger.info(f"LaTeX file: {tex_relative}")
@@ -126,6 +118,12 @@ async def enhance_cv(
             message="CV enhanced successfully",
         )
 
+    except DomainValidationError as exc:
+        logger.warning("Enhancement validation failed: %s", exc)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ApplicationError as exc:
+        logger.error("Save/compile failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
     except HTTPException:
         raise
     except Exception as e:
@@ -141,6 +139,10 @@ async def enhance_cv_batch(
     model_id: Optional[str] = Form(None),
     job_file: UploadFile = File(...),
     slice_projects: bool = Form(False),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    job_parser_use_case: ParseJobFileUseCase = Depends(parse_job_use_case),
+    batch_use_case: BatchEnhanceUseCase = Depends(batch_enhance_use_case),
+    tracker: ProgressTracker = Depends(get_progress_tracker),
 ):
     """Batch-enhance a CV for multiple jobs defined in a CSV or JSON file.
 
@@ -148,122 +150,87 @@ async def enhance_cv_batch(
     is optional. Supports flexible field naming (e.g., "job title", "position_title", etc.).
     Produces per-job LaTeX/PDF files and a zip archive.
 
+    This endpoint returns immediately with a session_id. The batch processing
+    runs in the background, and progress can be tracked via GET /api/progress.
+
     Args:
         session_id: Progress/session identifier.
         latex_content: Source LaTeX CV.
         model_id: Optional model selection.
         job_file: CSV or JSON file upload listing job entries.
         slice_projects: Enable intelligent project selection.
+        background_tasks: FastAPI BackgroundTasks for async execution.
 
     Returns:
-        Success response containing results array and `zip_path`.
+        Success response with session_id. Results available when status is "completed".
     """
     try:
-        jobs = await JobFileParser.parse(job_file)
+        # Parse job file synchronously (fast operation)
+        jobs = (await job_parser_use_case.execute(job_file)).jobs
 
-        # Initialize progress
-        ProgressService.init(
-            session_id, total=len(jobs), message="Starting batch enhancement"
-        )
-        # Nudge UI off 10%
-        ProgressService.update(
-            session_id, current=0, message=f"Queued {len(jobs)} jobs"
-        )
+        if not jobs:
+            raise DomainValidationError("No jobs found in file")
 
-        main_folder = OutputManager.create_main_output_folder()
-        ai_service = AIService(model_id=model_id)
+        # Initialize progress tracker
+        tracker.init(session_id, total=len(jobs), message="Starting batch enhancement")
 
-        # Derive original CV base name for output naming
-        original_cv_name = (
-            original_filename.replace(".tex", "") if original_filename else "OriginalCV"
-        )
-        results = []
+        # Create job executor for background processing
+        executor = BackgroundJobExecutor(background_tasks)
 
-        for idx, job in enumerate(jobs, start=1):
-            logger.info(f"[Batch] Processing job {idx}/{len(jobs)}: {job['job_title']}")
+        # Define the batch processing function
+        def process_batch() -> None:
+            """Process batch jobs in background."""
             try:
-                enhanced_latex = ai_service.enhance_cv(
-                    latex_content, job, slice_projects
+                result = batch_use_case.execute(
+                    session_id=session_id,
+                    latex_content=latex_content,
+                    jobs=jobs,
+                    original_filename=original_filename,
+                    slice_projects=slice_projects,
+                    model_id=model_id,
                 )
-
-                # Validate LaTeX
-                is_valid = LatexService.validate_latex_content(enhanced_latex)
-                if not is_valid:
-                    logger.error("[Batch] Enhanced LaTeX invalid; skipping PDF compile")
-
-                # Create subfolder and filenames
-                subfolder = OutputManager.create_job_subfolder(
-                    main_folder, job.get("company_name"), job["job_title"]
+                logger.info(
+                    f"Batch enhancement completed for session {session_id}: "
+                    f"{len(result.results)} jobs processed"
                 )
-                if original_filename:
-                    tex_name, pdf_name = (
-                        OutputManager.build_result_filenames_with_original_name(
-                            original_filename, job.get("company_name"), job["job_title"]
-                        )
-                    )
-                else:
-                    tex_name, pdf_name = OutputManager.build_result_filenames(
-                        original_cv_name, job.get("company_name"), job["job_title"]
-                    )
-
-                tex_path = os.path.join(subfolder, tex_name)
-                with open(tex_path, "w", encoding="utf-8") as f:
-                    f.write(enhanced_latex)
-
-                pdf_path = None
-                if is_valid:
-                    pdf_path = LatexService.compile_to_pdf(tex_path)
-                    LatexService.cleanup_latex_files(tex_path)
-
-                results.append(
-                    {
-                        "job_title": job["job_title"],
-                        "company_name": job.get("company_name"),
-                        "tex_path": FileService.get_relative_path(tex_path),
-                        "pdf_path": (
-                            FileService.get_relative_path(pdf_path)
-                            if pdf_path
-                            else None
-                        ),
-                    }
+            except Exception as exc:
+                logger.error(
+                    f"Batch enhancement failed in background for session {session_id}: {exc}",
+                    exc_info=True,
                 )
-                ProgressService.increment(
-                    session_id, 1, message=f"Completed {idx} of {len(jobs)}"
-                )
-            except Exception as job_err:
-                logger.error(f"[Batch] Failed job {idx}: {str(job_err)}")
-                ProgressService.mark_error(session_id)
-                continue
+                tracker.fail(session_id, message=f"Batch processing failed: {str(exc)}")
 
-        zip_path = OutputManager.zip_folder(main_folder)
-        zip_rel = FileService.get_relative_path(zip_path)
+        # Execute in background and return immediately
+        executor.execute_in_background(process_batch)
 
-        ProgressService.complete(
-            session_id, zip_path=zip_rel, message="Batch enhancement completed"
-        )
-
+        # Return immediately with session_id for progress tracking
         return ResponseBuilder.success_response(
             data={
                 "session_id": session_id,
-                "jobs_count": len(results),
-                "results": results,
-                "zip_path": zip_rel,
+                "jobs_count": len(jobs),
+                "status": "processing",
+                "message": "Batch enhancement started. Use GET /api/progress to track progress.",
             },
-            message="Batch enhancement completed",
+            message="Batch enhancement started",
         )
 
+    except DomainValidationError as exc:
+        tracker.fail(session_id, message=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Batch enhancement failed: {str(e)}", exc_info=True)
-        ProgressService.fail(session_id, message="Batch enhancement failed")
+        logger.error(f"Batch enhancement setup failed: {str(e)}", exc_info=True)
+        tracker.fail(session_id, message="Batch enhancement setup failed")
         raise HTTPException(
-            status_code=500, detail=f"Batch enhancement failed: {str(e)}"
+            status_code=500, detail=f"Batch enhancement setup failed: {str(e)}"
         )
 
 
 @router.get("/progress")
-async def get_progress(session_id: str):
+async def get_progress(
+    session_id: str, tracker: ProgressTracker = Depends(get_progress_tracker)
+):
     """Return progress for a given session as counts and percentage.
 
     Args:
@@ -272,7 +239,7 @@ async def get_progress(session_id: str):
     Returns:
         Success response with `current`, `total`, `percent`, `status`, `message`.
     """
-    state = ProgressService.get(session_id)
+    state = tracker.get(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="No progress found for session")
     # Convert to percent progress for frontend convenience
@@ -293,17 +260,21 @@ async def get_progress(session_id: str):
 
 
 @router.post("/file/preview")
-async def preview_file(file: UploadFile = File(...)):
+async def preview_file(
+    file: UploadFile = File(...),
+    parser_use_case: ParseJobFileUseCase = Depends(parse_job_use_case),
+):
     """Preview the file headers and first rows with quoted-field handling.
 
     Args:
         file: CSV or JSON file containing job entries.
+        parser_use_case: The ParseJobFileUseCase dependency.
 
     Returns:
         Success response with `headers` and `rows` (up to a small limit).
     """
     try:
-        headers, rows = await JobFileParser.preview(file)
+        headers, rows = await parser_use_case.preview(file)
 
         return ResponseBuilder.success_response(
             data={
@@ -314,5 +285,5 @@ async def preview_file(file: UploadFile = File(...)):
         )
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"File preview failed: {str(e)}")

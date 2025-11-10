@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ title, description }) => {
                     {title}
                 </h1>
             </div>
-            <p className="mt-2 px-4 py-1 inline-block bg-secondary text-xs sm:text-sm lg:text-base text-secondary-foreground nb-border nb-shadow">
+            <p className="mt-1 px-4 py-1 inline-block bg-secondary text-xs sm:text-sm lg:text-base text-secondary-foreground nb-border nb-shadow">
                 {description}
             </p>
         </motion.header>

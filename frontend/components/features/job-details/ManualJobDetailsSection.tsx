@@ -85,7 +85,7 @@ const ManualJobDetailsSection = ({
                 isLoading={loading}
                 onClick={handleEnhancement}
                 disabled={!isValid}
-                className="w-full h-11"
+                className="w-full h-10"
             >
                 <Sparkles className="h-4 w-4" />
                 Optimize CV with AI

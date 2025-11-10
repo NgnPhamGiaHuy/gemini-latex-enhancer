@@ -1,14 +1,14 @@
 """
-Content Guidelines for CV Enhancement Prompts
+Content guidelines for CV enhancement prompts.
 
-This module contains content structure guidelines, enhancement strategies,
-and formatting rules for CV enhancement operations.
+Provides content‑structure guidelines, enhancement strategies, and formatting
+rules for CV enhancement operations.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
-# Content structure guidelines
+# Content‑structure guidelines
 CONTENT_STRUCTURE_GUIDELINES = """
 ### CONTENT STRUCTURE REQUIREMENTS
 
@@ -38,17 +38,37 @@ CONTENT_STRUCTURE_GUIDELINES = """
    - Delete duplicate achievements across sections
    - Remove projects >5 years old unless highly relevant
    - Eliminate filler phrases ("various", "multiple", "some")
+
+**JD Traceability:**
+- Maintain a Job Alignment Plan that captures MUST-have and NICE-to-have requirements from the job description
+- Ensure each retained bullet maps to at least one JD requirement in the plan
+- When no clear mapping exists and space is limited, compress or remove the bullet unless it uniquely differentiates the candidate
+- Document any uncovered MUST-have requirements internally as risks (never fabricate coverage)
 """
 
 # Enhancement strategy
 ENHANCEMENT_STRATEGY = """
 ### ENHANCEMENT EXECUTION STRATEGY
 
+**Strategy 0: Job Description Analysis (Mandatory Pre-Work)**
+- Parse the job description to extract:
+  - MUST-have requirements (core responsibilities, essential skills, mandatory credentials)
+  - NICE-to-have requirements (preferred skills, bonus qualifications)
+  - Skill taxonomy buckets: Languages, Frameworks, Tools, Databases, Cloud, Methodologies, Domains
+  - Role scope indicators: seniority, ownership level, domain focus, impact expectations
+- Build a Job Alignment Plan containing:
+  - A prioritized keyword list (MUST-first) preserving exact JD phrasing
+  - A synonym normalization map aligning CV terminology with JD terminology
+  - A traceability matrix linking each JD requirement to concrete CV evidence or marking "no evidence"
+- Never claim coverage for JD items without CV evidence. When evidence is partial, use conservative phrasing that stays truthful.
+- Prioritize MUST-have coverage in Professional Summary and Experience; include NICE-to-have items only when space allows and relevance is high.
+
 **Strategy 1: Keyword Alignment**
 - Extract top 10-15 keywords and phrases from job description
 - Identify which CV elements naturally contain or relate to these keywords
 - Prioritize content that aligns with job terminology
 - Rewrite descriptions to incorporate job-relevant terms naturally
+- Use the synonym normalization map from the Job Alignment Plan to mirror JD terminology without altering facts
 
 **Strategy 2: Quantification and Metrics**
 - Add numerical data where derivable from original content:
@@ -86,7 +106,7 @@ ENHANCEMENT_STRATEGY = """
 - Never bold: Generic terms, filler words, or redundant phrases
 """
 
-# Intelligent selective bolding guidelines
+# Intelligent selective‑bolding guidelines
 INTELLIGENT_BOLDING_GUIDELINES = """
 INTELLIGENT SELECTIVE BOLDING RULES:
 

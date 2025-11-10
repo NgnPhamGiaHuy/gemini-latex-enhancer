@@ -1,19 +1,18 @@
 """
-Specialist AI Frameworks for CV Enhancement
+Specialist AI frameworks for CV enhancement.
 
-This module contains all the specialist AI frameworks that define the CV Enhancement 
-Specialist AI behavior and methodology. These frameworks guide the AI's reasoning 
-process and decision-making when enhancing LaTeX CV content.
+Contains the specialist frameworks that define the enhancement methodology and
+guide reasoning and decision‑making when transforming LaTeX CV content.
 
-Each framework provides a structured approach to specific aspects of the enhancement 
-task, ensuring consistency, factual integrity, and quality output.
+Each framework provides a structured approach to a specific aspect of the task,
+ensuring consistency, factual integrity, and high‑quality output.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
 # ============================================================================
-# EXECUTIVE SUMMARY AND MISSION STATEMENT
+# Executive summary and mission statement
 # ============================================================================
 
 MISSION_STATEMENT = """
@@ -40,7 +39,7 @@ and compiles into a professional PDF output.
 
 
 # ============================================================================
-# CORE REASONING FRAMEWORKS
+# Core reasoning frameworks
 # ============================================================================
 
 # TAG Framework - Task, Action, Goal

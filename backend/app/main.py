@@ -2,7 +2,7 @@
 Main FastAPI application for the CV Enhancement API.
 
 Responsibilities:
-- Configure app lifecycle (startup/shutdown) and directory housekeeping
+- Configure application lifecycle (startup/shutdown) and directory housekeeping
 - Register API routes for upload, enhance, download, and models
 - Provide simple health endpoints for uptime monitoring
 """
@@ -10,7 +10,7 @@ Responsibilities:
 import atexit
 import uvicorn
 import warnings
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,7 +23,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from app.routes import upload, enhance, download, models
 from app.config import settings
-from app.services.cleanup_service import FileCleanupService
+from app.application.contracts.cleanup_service import CleanupService
+from app.interface.di import get_cleanup_service
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -32,25 +33,30 @@ logger = get_logger(__name__)
 # Lifespan event handler
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Handle application startup and shutdown"""
+    """Handle application startup and shutdown."""
     # Startup
     logger.info("=== CV ENHANCEMENT API STARTING UP ===")
 
+    # Get cleanup service via DI
+    cleanup_service = get_cleanup_service()
+
     # Clean up any existing files from previous runs
-    FileCleanupService.cleanup_all_directories()
+    cleanup_service.cleanup_all_directories()
 
     # Clean up old session log files if configured
     if settings.CLEANUP_SESSION_LOGS_ON_STARTUP:
         logger.info("Cleaning up old session log files on startup...")
-        FileCleanupService.cleanup_old_session_logs(settings.SESSION_LOG_RETENTION_DAYS)
+        cleanup_service.cleanup_old_session_logs(settings.SESSION_LOG_RETENTION_DAYS)
 
     # Clean up old session output files if configured
     if settings.CLEANUP_SESSION_OUTPUTS_ON_STARTUP:
         logger.info("Cleaning up old session output files on startup...")
-        FileCleanupService.cleanup_old_session_outputs(settings.SESSION_OUTPUT_RETENTION_DAYS)
+        cleanup_service.cleanup_old_session_outputs(
+            settings.SESSION_OUTPUT_RETENTION_DAYS
+        )
 
     # Ensure directories exist
-    FileCleanupService.ensure_directories_exist()
+    cleanup_service.ensure_directories_exist()
 
     logger.info("=== CV ENHANCEMENT API STARTUP COMPLETED ===")
 
@@ -60,17 +66,17 @@ async def lifespan(app: FastAPI):
     logger.info("=== CV ENHANCEMENT API SHUTTING DOWN ===")
 
     # Clean up temporary files
-    FileCleanupService.cleanup_all_directories()
+    cleanup_service.cleanup_all_directories()
 
     # Clean up session log files if configured
     if settings.CLEANUP_SESSION_LOGS_ON_SHUTDOWN:
         logger.info("Cleaning up session log files on shutdown...")
-        FileCleanupService.cleanup_session_logs_directory()
+        cleanup_service.cleanup_session_logs_directory()
 
     # Clean up session output files if configured
     if settings.CLEANUP_SESSION_OUTPUTS_ON_SHUTDOWN:
         logger.info("Cleaning up session output files on shutdown...")
-        FileCleanupService.cleanup_session_outputs_directory()
+        cleanup_service.cleanup_session_outputs_directory()
 
     logger.info("=== CV ENHANCEMENT API SHUTDOWN COMPLETED ===")
 
@@ -86,19 +92,20 @@ app = FastAPI(
 
 # Register cleanup function for unexpected shutdowns
 def cleanup_on_exit():
-    """Cleanup function for unexpected shutdowns"""
+    """Cleanup function for unexpected shutdowns."""
     logger.info("=== CLEANUP ON EXIT TRIGGERED ===")
-    FileCleanupService.cleanup_all_directories()
-    
+    cleanup_service = get_cleanup_service()
+    cleanup_service.cleanup_all_directories()
+
     # Clean up session log files if configured
     if settings.CLEANUP_SESSION_LOGS_ON_SHUTDOWN:
         logger.info("Cleaning up session log files on unexpected exit...")
-        FileCleanupService.cleanup_session_logs_directory()
+        cleanup_service.cleanup_session_logs_directory()
 
     # Clean up session output files if configured
     if settings.CLEANUP_SESSION_OUTPUTS_ON_SHUTDOWN:
         logger.info("Cleaning up session output files on unexpected exit...")
-        FileCleanupService.cleanup_session_outputs_directory()
+        cleanup_service.cleanup_session_outputs_directory()
 
 
 atexit.register(cleanup_on_exit)
@@ -148,19 +155,23 @@ async def health_check():
 
 
 @app.post("/cleanup")
-async def manual_cleanup():
+async def manual_cleanup(
+    cleanup_service: CleanupService = Depends(get_cleanup_service),
+):
     """Trigger cleanup of temporary files (primarily for testing).
 
     Returns:
         Dict with a success message upon completion.
     """
     logger.info("=== MANUAL CLEANUP REQUESTED ===")
-    FileCleanupService.cleanup_all_directories()
+    cleanup_service.cleanup_all_directories()
     return {"message": "Cleanup completed successfully"}
 
 
 @app.post("/cleanup/session-logs")
-async def manual_session_log_cleanup():
+async def manual_session_log_cleanup(
+    cleanup_service: CleanupService = Depends(get_cleanup_service),
+):
     """
     Manual session log cleanup endpoint for development and maintenance.
 
@@ -168,13 +179,15 @@ async def manual_session_log_cleanup():
         Dict with a success message.
     """
     logger.info("=== MANUAL SESSION LOG CLEANUP TRIGGERED ===")
-    FileCleanupService.cleanup_session_logs_directory()
+    cleanup_service.cleanup_session_logs_directory()
 
     return {"message": "Session log cleanup completed successfully"}
 
 
 @app.post("/cleanup/session-outputs")
-async def manual_session_output_cleanup():
+async def manual_session_output_cleanup(
+    cleanup_service: CleanupService = Depends(get_cleanup_service),
+):
     """
     Manual session output cleanup endpoint for development and maintenance.
 
@@ -182,13 +195,16 @@ async def manual_session_output_cleanup():
         Dict with a success message.
     """
     logger.info("=== MANUAL SESSION OUTPUT CLEANUP TRIGGERED ===")
-    FileCleanupService.cleanup_session_outputs_directory()
+    cleanup_service.cleanup_session_outputs_directory()
 
     return {"message": "Session output cleanup completed successfully"}
 
 
 @app.post("/cleanup/session-outputs/old")
-async def manual_old_session_output_cleanup(days_to_keep: int = 7):
+async def manual_old_session_output_cleanup(
+    days_to_keep: int = 7,
+    cleanup_service: CleanupService = Depends(get_cleanup_service),
+):
     """
     Manual old session output cleanup endpoint for development and maintenance.
 
@@ -198,10 +214,14 @@ async def manual_old_session_output_cleanup(days_to_keep: int = 7):
     Returns:
         Dict with a success message.
     """
-    logger.info(f"=== MANUAL OLD SESSION OUTPUT CLEANUP TRIGGERED (keeping {days_to_keep} days) ===")
-    FileCleanupService.cleanup_old_session_outputs(days_to_keep)
+    logger.info(
+        f"=== MANUAL OLD SESSION OUTPUT CLEANUP TRIGGERED (keeping {days_to_keep} days) ==="
+    )
+    cleanup_service.cleanup_old_session_outputs(days_to_keep)
 
-    return {"message": f"Old session output cleanup completed successfully (kept {days_to_keep} days)"}
+    return {
+        "message": f"Old session output cleanup completed successfully (kept {days_to_keep} days)"
+    }
 
 
 if __name__ == "__main__":

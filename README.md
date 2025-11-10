@@ -279,10 +279,10 @@ Frontend (`frontend/package.json` highlights):
 ## 🧭 Architecture & flow
 
 -   The FastAPI app (`app.main:app`) mounts routes under `/api` and serves `outputs/` statically under `/outputs`.
--   `AIService` centralizes Google Gemini calls for summarization and CV enhancement, using prompts from `app.prompts`.
--   `LatexService` validates LaTeX and compiles to PDF via `lualatex`, cleaning aux files post‑build.
--   `ModelService` discovers available models (with in‑memory caching and fallbacks) and provides defaults.
--   `ProgressService` tracks batch job progress in memory; `/api/progress` exposes current state.
+-   Application layer orchestrates uploads, single enhancements, and batch runs through use cases (`UploadCvUseCase`, `EnhanceCvUseCase`, `SaveAndCompileUseCase`, `BatchEnhanceUseCase`).
+-   Infrastructure adapters provide integrations: `GeminiCvEnhancer` for Google Gemini, `LualatexCompiler` for LuaLaTeX, `LocalFileStorage`/`LocalOutputPackager` for filesystem persistence, and `InMemoryProgressTracker` for batch status.
+-   `ModelService` discovers available models (with in-memory caching and fallbacks) and provides defaults for the API.
+-   The Next.js frontend orchestrates steps through components in `src/components/cv-enhancer/` and calls backend APIs from `src/lib/api.ts`.
 -   The Next.js frontend orchestrates steps through components in `src/components/cv-enhancer/` and calls backend APIs from `src/lib/api.ts`.
 
 ## 🤝 Contributing

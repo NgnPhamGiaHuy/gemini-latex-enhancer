@@ -40,8 +40,11 @@ export interface BatchJobResult {
 export interface BatchAlignResponse {
     session_id: string;
     jobs_count: number;
-    results: BatchJobResult[];
-    zip_path: string;
+    status: string;
+    message: string;
+    // Results and zip_path are available in progress response when status is "completed"
+    results?: BatchJobResult[];
+    zip_path?: string;
 }
 
 export interface ProgressResponse {

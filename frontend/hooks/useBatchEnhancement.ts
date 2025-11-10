@@ -6,6 +6,7 @@ import {
     fetchProgress,
     previewFile,
 } from "@/libs/api";
+import type { ProgressResponse } from "@/libs/api/core/types";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { extractJobDetailsFromPreview } from "@/utils";
@@ -84,7 +85,8 @@ const useBatchEnhancement = ({ onLoadingChange }: UseBatchEnhancementProps) => {
                     }
                 }
 
-                const resPromise = alignSectionsBatch({
+                // Start batch enhancement (returns immediately)
+                await alignSectionsBatch({
                     session_id: sessionId,
                     latex_content: originalLatexContent,
                     original_filename: originalFilename,
@@ -93,7 +95,9 @@ const useBatchEnhancement = ({ onLoadingChange }: UseBatchEnhancementProps) => {
                     slice_projects: sliceProjects,
                 });
 
+                // Poll for progress updates
                 let done = false;
+                let finalProgress: ProgressResponse | null = null;
                 await new Promise((r) => setTimeout(r, 600));
                 while (!done) {
                     await new Promise((r) => setTimeout(r, 1000));
@@ -110,13 +114,35 @@ const useBatchEnhancement = ({ onLoadingChange }: UseBatchEnhancementProps) => {
                         onLoadingChange(true, safePercent, message);
                         if (p.status === "completed") {
                             done = true;
+                            finalProgress = p;
                         } else if (p.status === "failed") {
-                            throw new Error("Batch enhancement failed");
+                            throw new Error(
+                                p.message || "Batch enhancement failed"
+                            );
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        // Continue polling on transient errors
+                        if (e instanceof Error && e.message.includes("404")) {
+                            // Progress not initialized yet, continue polling
+                            continue;
+                        }
+                        throw e;
+                    }
                 }
 
-                const res: BatchAlignResponse = await resPromise;
+                // Build response from final progress state
+                if (!finalProgress) {
+                    throw new Error("Batch enhancement completed but no final progress available");
+                }
+
+                const res: BatchAlignResponse = {
+                    session_id: sessionId,
+                    jobs_count: finalProgress.total,
+                    status: finalProgress.status,
+                    message: finalProgress.message,
+                    zip_path: finalProgress.zip_path || undefined,
+                };
+
                 onLoadingChange(false, 100, "Batch enhancement completed!");
                 return res;
             } catch (error) {

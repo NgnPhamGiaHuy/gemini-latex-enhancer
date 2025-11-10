@@ -67,7 +67,7 @@ const JobFileUploadSection = ({ loading }: JobFileUploadSectionProps) => {
                             </div>
                             <button
                                 onClick={handleFileRemove}
-                                className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                className="text-sm text-red-500 hover:text-red-700 font-medium"
                                 type="button"
                             >
                                 × Remove
@@ -115,9 +115,9 @@ const JobFileUploadSection = ({ loading }: JobFileUploadSectionProps) => {
                     handleBatchEnhance({ jobFile })
                 }
                 disabled={!jobFile || !!fileError}
-                className="w-full h-11"
+                className="w-full h-10"
             >
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="size-4" />
                 Start Batch Enhancement
             </LoadingButton>
         </div>

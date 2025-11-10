@@ -27,15 +27,15 @@ const UploadStep = () => {
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.4 }}
         >
-            <div className="max-w-4xl mx-auto space-y-3 sm:space-y-6">
+            <div className="max-w-4xl mx-auto space-y-2 sm:space-y-4">
                 {/* Model Selection */}
                 <ModelSelection error={error} isLoading={isLoading} />
 
                 {/* File Upload */}
                 <Card>
-                    <CardHeader className="text-center pb-3 sm:pb-6">
+                    <CardHeader className="text-center pb-2 sm:pb-4">
                         <CardTitle className="text-lg sm:text-xl lg:text-2xl flex items-center justify-center gap-2">
-                            <Upload className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                            <Upload className="size-5 sm:size-6 text-primary" />
                             Upload Your CV
                         </CardTitle>
                         <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">

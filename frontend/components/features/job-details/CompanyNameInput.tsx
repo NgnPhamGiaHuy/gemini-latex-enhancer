@@ -28,7 +28,7 @@ const CompanyNameInput = ({
                     value={companyName}
                     onChange={(e) => dispatch(setCompanyName(e.target.value))}
                     onBlur={onBlur}
-                    className="h-11"
+                    className="h-10"
                 />
             </AppTooltip>
             {touched && error && (

@@ -1,9 +1,8 @@
 """
-Unicode-safe filename sanitization utilities.
+Unicode‑safe filename‑sanitization utilities.
 
-This module provides robust filename sanitization that preserves Unicode characters
-while removing only unsafe symbols that are invalid in filenames across major
-operating systems.
+Provides robust filename sanitization that preserves Unicode characters while
+removing only unsafe symbols that are invalid across major operating systems.
 """
 
 import re
@@ -13,7 +12,7 @@ from typing import Optional
 
 def sanitize_filename(text: str) -> str:
     """
-    Sanitize a filename to be safe across all operating systems while preserving Unicode characters.
+    Sanitize a filename to be safe across operating systems while preserving Unicode characters.
 
     This function:
     - Preserves all alphabetic characters from any language (Vietnamese, French, Japanese, etc.)
@@ -46,8 +45,7 @@ def sanitize_filename(text: str) -> str:
     if not text or not text.strip():
         return "untitled"
 
-    # Normalize Unicode characters to prevent encoding issues
-    # NFC (Canonical Decomposition, followed by Canonical Composition) is recommended
+    # Normalize Unicode characters to prevent encoding issues (NFC is recommended)
     text = unicodedata.normalize("NFC", text)
 
     # Remove only truly unsafe characters for filenames across OS:
@@ -57,7 +55,7 @@ def sanitize_filename(text: str) -> str:
     unsafe_chars = r'[<>:"|?*\\/\x00-\x1f\x7f]'
     text = re.sub(unsafe_chars, "-", text)
 
-    # Replace multiple spaces and hyphens with single hyphen
+    # Replace multiple spaces and hyphens with a single hyphen
     text = re.sub(r"[\s\-]+", "-", text)
 
     # Remove leading/trailing hyphens and dots (can cause issues on some systems)
@@ -78,8 +76,8 @@ def sanitize_filename_for_download(text: str) -> str:
     """
     Sanitize a filename specifically for download headers.
 
-    This is more permissive than regular filename sanitization since download
-    filenames are handled by browsers and can contain more Unicode characters.
+    This is more permissive than regular filename sanitization because browsers
+    can handle more Unicode characters in download filenames.
 
     Args:
         text: The text to sanitize for download filename
@@ -93,8 +91,8 @@ def sanitize_filename_for_download(text: str) -> str:
     # Normalize Unicode characters
     text = unicodedata.normalize("NFC", text)
 
-    # Remove only the most problematic characters for HTTP headers
-    # Keep most Unicode characters for international filenames
+    # Remove only the most problematic characters for HTTP headers;
+    # retain most Unicode characters for international filenames
     text = re.sub(r"[\r\n\t\x00-\x1f\x7f]", "", text)
 
     # Replace spaces with hyphens for consistency
@@ -114,8 +112,7 @@ def sanitize_filename_for_filesystem(text: str) -> str:
     """
     Sanitize a filename for filesystem storage (more restrictive).
 
-    This is used for actual file storage where we need to be more careful
-    about filesystem compatibility.
+    Used for actual file storage where stricter filesystem compatibility is required.
 
     Args:
         text: The text to sanitize for filesystem storage
@@ -129,12 +126,11 @@ def sanitize_filename_for_filesystem(text: str) -> str:
     # Normalize Unicode characters
     text = unicodedata.normalize("NFC", text)
 
-    # Remove filesystem-unsafe characters
-    # This is more restrictive than download sanitization
+    # Remove filesystem‑unsafe characters (stricter than download sanitization)
     unsafe_chars = r'[<>:"|?*\\/\x00-\x1f\x7f]'
     text = re.sub(unsafe_chars, "-", text)
 
-    # Replace spaces with hyphens
+    # Replace spaces and repeated hyphens with a single hyphen
     text = re.sub(r"[\s\-]+", "-", text)
 
     # Remove leading/trailing hyphens and dots

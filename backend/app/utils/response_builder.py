@@ -1,8 +1,8 @@
 """
 Response builder utility for consistent API responses.
 
-Standardizes success and error payloads returned by the API to make the
-frontend simpler and logs basic response meta for observability.
+Standardizes success and error payloads returned by the API to simplify the
+frontend and logs basic response metadata for observability.
 """
 
 from typing import Any, Dict, Optional

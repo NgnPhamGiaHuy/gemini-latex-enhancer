@@ -80,19 +80,19 @@ export const FileUploadZone = ({
                 }}
             >
                 <motion.div
-                    className="flex flex-col items-center gap-3 sm:gap-4"
+                    className="flex flex-col items-center gap-2 sm:gap-3"
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                 >
                     <div className="relative">
-                        <Upload className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-foreground" />
+                        <Upload className="size-8 sm:size-10 lg:size-12 text-foreground" />
                     </div>
 
                     <div className="space-y-1 sm:space-y-2">
                         <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">
                             {title}
                         </h3>
-                        <div className="text-xs sm:text-sm lg:text-base text-foreground max-w-md px-2">
+                        <div className="max-w-md px-2 text-xs sm:text-sm lg:text-base text-foreground">
                             {description}
                         </div>
                     </div>
@@ -112,7 +112,7 @@ export const FileUploadZone = ({
                         aria-label="Processing file"
                     >
                         <div className="flex flex-col items-center gap-2">
-                            <div className="animate-spin h-6 w-6 sm:h-8 sm:w-8 border-2 border-foreground border-t-transparent" />
+                            <div className="animate-spin size-6 sm:size-8 border-2 border-foreground border-t-transparent" />
                             <p className="text-xs sm:text-sm lg:text-base text-foreground">
                                 {processingText}
                             </p>

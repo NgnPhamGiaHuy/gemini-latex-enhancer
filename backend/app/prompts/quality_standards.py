@@ -1,11 +1,11 @@
 """
-Quality Standards for CV Enhancement Prompts
+Quality standards for CV enhancement prompts.
 
-This module contains quality requirements, factual integrity rules,
-and validation standards for CV enhancement operations.
+Defines quality requirements, factual‑integrity rules, and validation standards
+for CV enhancement operations.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
 # Quality standards
@@ -54,6 +54,17 @@ ADVANCED_QUALITY_ASSURANCE = """
 ✅ Proper spacing and section separation
 ✅ LaTeX formatting syntax correct and error-free
 
+**Job Description Traceability:**
+✅ A Job Alignment Plan exists linking JD requirements to CV evidence
+✅ MUST-have requirements prioritized when verifiable evidence exists
+✅ NICE-to-have requirements integrated only when space allows and evidence exists
+✅ Missing MUST-have evidence noted internally as risks (never fabricated)
+
+**Coverage Targets (Guidance, Not Hard Constraints):**
+- Aim for ≥70% coverage of MUST-have items when evidence exists in the source CV
+- Incorporate NICE-to-have items opportunistically without displacing higher-value evidence
+- If coverage gaps remain, preserve integrity by stating only verifiable adjacent or transferable skills
+
 **Job Alignment Checks:**
 ✅ Content directly addresses job requirements
 ✅ Keywords from job description naturally incorporated
@@ -73,7 +84,7 @@ ADVANCED_QUALITY_ASSURANCE = """
 ✅ All environments properly closed
 """
 
-# Factual integrity requirements
+# Factual‑integrity requirements
 FACTUAL_INTEGRITY_REQUIREMENTS = """
 ### FACTUAL INTEGRITY - MANDATORY RULES
 
@@ -100,7 +111,7 @@ FACTUAL_INTEGRITY_REQUIREMENTS = """
 - No modernization of titles or organizations
 """
 
-# Enhanced factual integrity (for slicing prompt)
+# Enhanced factual integrity (for slicing prompt variants)
 ENHANCED_FACTUAL_INTEGRITY = """
 ### ENHANCED FACTUAL INTEGRITY - ABSOLUTE REQUIREMENTS
 

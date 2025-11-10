@@ -1,4 +1,5 @@
-"""CV Enhancement backend package.
+"""
+CV enhancement backend package.
 
-Houses FastAPI app wiring, services, routes, prompts, and utilities.
+Contains FastAPI application wiring, services, routes, prompts, and utilities.
 """

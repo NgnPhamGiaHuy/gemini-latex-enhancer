@@ -1,21 +1,17 @@
-"""
-Model Service for fetching available AI models from Google Gemini API.
-
-This service centralizes model discovery, default selection, and basic caching
-to avoid frequent API calls. It returns processed, frontend-friendly model
-metadata and provides helpers to retrieve specific models or the default one.
-"""
+from __future__ import annotations
 
 import google.generativeai as genai
 from typing import List, Dict, Optional
+
+from app.application.contracts.model_service import ModelService
 from app.config import settings
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-class ModelService:
-    """Service for managing AI model information and caching."""
+class GeminiModelService(ModelService):
+    """Infrastructure adapter for AI model discovery using Google Gemini API."""
 
     def __init__(self):
         """Initialize cache structures and durations."""
@@ -24,7 +20,7 @@ class ModelService:
         self._cache_duration = 300  # 5 minutes cache
 
     def _is_cache_valid(self) -> bool:
-        """Return True if the in-memory cache is still fresh."""
+        """Return True if the in‑memory cache is still fresh."""
         if not self._models_cache or not self._cache_timestamp:
             return False
 
@@ -45,17 +41,17 @@ class ModelService:
                 logger.error("❌ GEMINI_API_KEY not configured")
                 return self._get_fallback_models()
 
-            # Configure Gemini
+            # Configure Gemini client
             genai.configure(api_key=settings.GEMINI_API_KEY)
 
-            # Fetch models from API
+            # Fetch models from the API
             models = list(genai.list_models())  # Convert generator to list
             logger.info(f"✅ Fetched {len(models)} models from API")
 
             # Process and filter models
             processed_models = []
             for model in models:
-                # Only include models that support generateContent (text generation)
+                # Include only models that support generateContent (text generation)
                 if "generateContent" in model.supported_generation_methods:
                     model_info = {
                         "id": model.name.replace("models/", ""),
@@ -71,7 +67,7 @@ class ModelService:
             logger.info(f"✅ Processed {len(processed_models)} text generation models")
             return processed_models
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"❌ Failed to fetch models from API: {str(e)}")
             return self._get_fallback_models()
 
@@ -179,12 +175,8 @@ class ModelService:
 
         return None
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Clear the in-memory models cache and timestamp."""
         logger.info("🗑️ Clearing models cache")
         self._models_cache = None
         self._cache_timestamp = None
-
-
-# Global instance
-model_service = ModelService()

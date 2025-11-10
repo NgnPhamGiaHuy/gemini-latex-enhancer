@@ -1,5 +1,5 @@
 """
-Download route for file downloads with enhanced security
+Download route for file downloads with enhanced security.
 """
 
 import re
@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 @router.get("/download/{filename}")
 async def download_file(filename: str = Path(...), request: Request = None):
-    """Download a produced `.tex` or `.pdf` from the session outputs directory with security validation.
+    """Download a produced `.tex` or `.pdf` from the session‑outputs directory with security validation.
 
     Args:
         filename: Basename of the file to download (no path traversal allowed).
@@ -27,10 +27,10 @@ async def download_file(filename: str = Path(...), request: Request = None):
         FileResponse with the appropriate media type and Content-Disposition header.
     """
     try:
-        # Sanitize filename to prevent path traversal attacks
+        # Sanitize filename to prevent path‑traversal attacks
         sanitized_filename = re.sub(r"[^a-zA-Z0-9._-]", "", filename)
 
-        # Additional security check - ensure no path traversal attempts
+        # Additional security check — ensure no path traversal attempts
         if ".." in filename or "/" in filename or "\\" in filename:
             logger.warning(f"Path traversal attempt detected: {filename}")
             raise HTTPException(status_code=400, detail="Invalid filename")

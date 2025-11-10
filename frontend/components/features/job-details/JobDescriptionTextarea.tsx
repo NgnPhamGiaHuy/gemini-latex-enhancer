@@ -34,7 +34,7 @@ const JobDescriptionTextarea = ({
                         dispatch(setJobDescription(e.target.value))
                     }
                     onBlur={onBlur}
-                    className="resize-none h-32 sm:h-40 overflow-y-auto"
+                    className="h-28 sm:h-36 resize-none overflow-y-auto"
                 />
             </AppTooltip>
             <div className="flex justify-between text-xs text-muted-foreground">

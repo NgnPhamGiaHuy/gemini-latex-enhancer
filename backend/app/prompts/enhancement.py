@@ -1,23 +1,20 @@
 """
-CV Enhancement Prompt
-Enhances LaTeX CV content to align with job requirements
+CV enhancement prompts.
+Refines LaTeX CV content to align with target job requirements.
 
-This module contains two prompt versions:
-1. CV_ENHANCEMENT_PROMPT: Standard prompt with dynamic section analysis
-   and strict one-page constraint enforcement
-2. CV_ENHANCEMENT_PROMPT_WITH_SLICING: Prompt with intelligent project selection
-   and personal projects slicing capabilities
+This module defines two prompt variants:
+1. CV_ENHANCEMENT_PROMPT: Standard prompt with dynamic section analysis and strict one‑page enforcement.
+2. CV_ENHANCEMENT_PROMPT_WITH_SLICING: Prompt with intelligent project selection and personal‑project slicing.
 
-All prompts use shared common sections from shared_template.py for consistency and maintainability.
+All prompts incorporate shared sections from `shared_template.py` for consistency and maintainability.
 
-The standard prompt is used by default to ensure CVs don't expand beyond one page 
-while maintaining quality and relevance.
+The standard prompt is the default to preserve a one‑page format while maintaining quality and relevance.
 
 Version: 2.0
-Last Updated: 2025-10-27
+Last updated: 2025‑10‑27
 """
 
-# Standard prompt with dynamic section analysis
+# Standard prompt with dynamic section analysis and one‑page constraint enforcement
 CV_ENHANCEMENT_PROMPT = """
 ## ROLE AND CONTEXT
 You are a Senior CV Enhancement Specialist operating within the Gemini LaTeX Enhancer system. Your mission is to transform existing LaTeX CV content into a one-page, job-aligned document that maintains 100% factual integrity.
@@ -33,6 +30,15 @@ Analyze and align the CV with these specific requirements:
 - **Job Title:** {job_title}
 - **Job Description:** {job_description}
 - **Company Name:** {company_name}
+
+## JOB DESCRIPTION ANALYSIS (MANDATORY PRE-WORK)
+Before editing, build a Job Alignment Plan using the provided job information:
+- Extract MUST-have vs NICE-to-have requirements, preserving the job description's exact phrasing
+- Build a skill taxonomy (Languages, Frameworks, Tools, Databases, Cloud, Methodologies, Domains) and capture role scope indicators (seniority, ownership, impact)
+- Create a prioritized keyword list (MUST items first) and a synonym normalization map that aligns CV terminology with job terminology
+- Construct a traceability matrix mapping each JD requirement to verifiable CV evidence; mark any missing evidence as "no evidence" without fabricating coverage
+- Prioritize MUST-have coverage in Professional Summary and Experience, then integrate NICE-to-have items when space allows
+- Maintain 100% factual integrity—never claim coverage without explicit support in the source CV
 
 ## OPERATIONAL FRAMEWORKS
 {combined_template}
@@ -60,19 +66,24 @@ Before generating output, mentally execute these steps:
 - Identify which sections exist (Education, Experience, Projects, Skills, etc.)
 - Estimate current content density and length
 
-**Step 2: Relevance Scoring**
-- For each piece of content (bullet points, achievements, skills), assign a relevance score (1-10) based on job description keywords
-- Identify top 5-10 most relevant content elements
-- Identify least relevant content that can be condensed or removed
+**Step 2: Job Alignment Planning**
+- Finalize the Job Alignment Plan (MUST/NICE requirements, prioritized keywords, synonym normalization map, traceability matrix)
+- Note uncovered MUST-have requirements as alignment risks; never create unsupported claims
+- Determine which CV sections provide the strongest evidence for each MUST-have requirement
 
-**Step 3: Space Optimization**
+**Step 3: Relevance Scoring**
+- For each piece of content (bullet points, achievements, skills), assign a relevance score (1-10) based on alignment with the Job Alignment Plan
+- Identify top 5-10 most relevant content elements across sections
+- Identify least relevant content that can be condensed or removed without losing critical coverage
+
+**Step 4: Space Optimization**
 - Determine which sections need compression to meet one-page constraint
 - Prioritize keeping most relevant content
 - Remove redundant or less relevant information
 - Apply abbreviations and concise phrasing
 
-**Step 4: Alignment Execution**
-- Rewrite content using job-specific terminology from the job description
+**Step 5: Alignment Execution**
+- Rewrite content using job-specific terminology from the job description and the synonym normalization map
 - Quantify achievements where data exists in the source
 - Use action verbs that match the job requirements
 - Maintain professional tone throughout
@@ -115,7 +126,7 @@ Enhance the following LaTeX CV content:
 {latex_content}
 """
 
-# Enhanced prompt with personal projects slicing
+# Enhanced prompt with personal‑projects slicing enabled
 CV_ENHANCEMENT_PROMPT_WITH_SLICING = """
 ## ROLE AND CONTEXT
 You are a Senior CV Enhancement Specialist operating within the Gemini LaTeX Enhancer system. Your mission is to transform existing LaTeX CV content into a one-page, job-aligned document that maintains 100% factual integrity.
@@ -165,7 +176,12 @@ Before generating output, mentally execute these steps:
 - **SPECIAL**: Count total number of personal projects in the source CV
 - Estimate current content density and length
 
-**Step 2: Project Selection (SLICING MODE - FLEXIBLE)**
+**Step 2: Job Alignment Planning**
+- Finalize the Job Alignment Plan (MUST/NICE requirements, prioritized keywords, synonym normalization map, traceability matrix)
+- Note uncovered MUST-have requirements as alignment risks; never claim coverage without evidence
+- Determine which projects and experiences provide the strongest evidence for each MUST-have requirement
+
+**Step 3: Project Selection (SLICING MODE - FLEXIBLE)**
 - If source has 3+ projects: Flexibly select 2-3 projects based on:
   1. Job relevance scores (all must score 7+ to keep 3)
   2. Bullet count per project (≤3 bullets each to keep 3)
@@ -173,22 +189,23 @@ Before generating output, mentally execute these steps:
   4. Decision: Keep 3 only if all conditions met, otherwise keep 2
 - If source has 2 projects: Keep both if space allows, otherwise keep most relevant
 - If source has 1 project: Keep only if highly relevant to the job
+- Apply MUST/NICE weighting from the Job Alignment Plan when scoring projects
 - **CRITICAL**: Completely remove unselected projects from output
 
-**Step 3: Relevance Scoring**
-- For each piece of content (bullet points, achievements, skills), assign a relevance score (1-10) based on job description keywords
+**Step 4: Relevance Scoring**
+- For each piece of content (bullet points, achievements, skills), assign a relevance score (1-10) based on the Job Alignment Plan
 - Identify top 5-10 most relevant content elements
 - Identify least relevant content that can be condensed or removed
 - Score each project for job relevance before selection
 
-**Step 4: Space Optimization**
+**Step 5: Space Optimization**
 - Determine which sections need compression to meet one-page constraint
 - Prioritize keeping most relevant content
 - Remove redundant or less relevant information
 - Apply abbreviations and concise phrasing
 
-**Step 5: Alignment Execution**
-- Rewrite content using job-specific terminology from the job description
+**Step 6: Alignment Execution**
+- Rewrite content using job-specific terminology from the job description and the synonym normalization map
 - Quantify achievements where data exists in the source
 - Use action verbs that match the job requirements
 - Maintain professional tone throughout
